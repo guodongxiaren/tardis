@@ -1,9 +1,11 @@
 <div align="center">
     <img src="https://raw.githubusercontent.com/guodongxiaren/logo/master/tardis/tardis.png" width="10%">
+    <h1>Tardis<br><sub>C++本地词典文件解析库</sub></h1>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/Open_source-MIT-green.svg?logo=git&logoColor=green"></a>
 </div>
 
-# Tardis
-C++本地词典文件解析库
+
+
 ## 编译运行
 ```
 make
