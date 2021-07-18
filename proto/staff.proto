@@ -1,0 +1,15 @@
+syntax="proto2";
+import "commdict-key.proto";
+
+message Prov {
+    required int32 id = 1;
+    required string name = 2;
+};
+
+message Staff {
+    required int32 id = 1[(commdict.key) = true];
+    required string name = 2;
+    required int32 score = 3;
+    required Prov prov = 4;
+    repeated string hobby = 5;
+}
