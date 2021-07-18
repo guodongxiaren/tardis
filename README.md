@@ -1,5 +1,9 @@
-# 智能CSV解析器
-简要说明
+<div align="center">
+    <img src="https://raw.githubusercontent.com/guodongxiaren/logo/master/tardis/tardis.png" width="10%">
+</div>
+
+# Tardis
+C++本地词典文件解析库
 ## 编译运行
 ```
 make
