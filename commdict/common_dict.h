@@ -22,7 +22,6 @@
 
 #include "commdict-key.pb.h"
 #include "common.h"
-#include "factory.h"
 
 template<typename T>
 class CommonDict {
@@ -62,7 +61,7 @@ private:
     // @param[out]: message
     // @param[out]: p_key
     // @return:     status 0:suc -1:failed
-    int string_to_message(const std::string& line, google::protobuf::Message* message, const std::string& sep, std::string* p_key);
+    static int string_to_message(const std::string& line, google::protobuf::Message* message, const std::string& sep, std::string* p_key);
 
     // @breif:      加载并解析词表
     // @return:     是否成功 0:成功 -1失败
@@ -226,16 +225,9 @@ int CommonDict<T>::make_entry(const std::string& col, google::protobuf::Message*
         } else {
             msg = reflection->MutableMessage(entry, field);
         }
-
-        parse_function parse = Factory::get(mname);
-
-        if (parse == nullptr) {
-            LOG(ERROR)<< "get parse func failed:"<< mname;
-            return -1;
-        }
-
-        if (parse(col, msg) != 0) {
-            LOG(ERROR)<< "parse [" << mname << "][" << col << "%s] failed";
+        // TODO
+        int ret = string_to_message(col, msg, "\t", nullptr);
+        if (!ret) {
             return -1;
         }
 
@@ -271,25 +263,21 @@ std::shared_ptr<T> CommonDict<T>::get_record_by_key(Args... keys) {
 
 template<typename T>
 int CommonDict<T>::load_file() {
-    using std::string;
-    using std::vector;
-    using std::ifstream;
-
-    ifstream fin(_dict_filename);
+    std::ifstream fin(_dict_filename);
 
     if (!fin) {
         LOG(ERROR)<< "open file:" << _dict_filename << " failed";
         return 2;
     }
 
-    string line;
-    vector<string> lines;
+    std::string line;
+    std::vector<std::string> lines;
 
     while (getline(fin, line)) {
         lines.emplace_back(line);
     }
 
-    for (string & line : lines) {
+    for (std::string& line : lines) {
 
         if (this->read_line(line) != 0) {
             LOG(ERROR)<< "read_line:"<< line;
