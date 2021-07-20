@@ -69,7 +69,7 @@ private:
     // @param[in]:  i 如果是数组，表示是所位于的数组下标
     // @return:     是否成功 0:成功 -1失败
     static int make_entry(const std::string& col, std::shared_ptr<T>& sp_entry,
-                          const google::protobuf::FieldDescriptor* field, bool is_repeated = false, int i = 0);
+                          const google::protobuf::FieldDescriptor* field, bool is_repeated = false);
 
 private:
     std::map<std::string, int> _dict; // key-value 词表, value是记录对应的行号下标
@@ -113,7 +113,7 @@ std::shared_ptr<CommonDict<T>> CommonDict<T>::get_instance(const std::string& di
 
 template <typename T>
 int CommonDict<T>::make_entry(const std::string& col, std::shared_ptr<T>& sp_entry,
-                              const google::protobuf::FieldDescriptor* field, bool is_repeated, int i) {
+                              const google::protobuf::FieldDescriptor* field, bool is_repeated) {
     T* entry = sp_entry.get();
     const google::protobuf::Reflection* reflection = entry->GetReflection();
 
@@ -214,8 +214,9 @@ int CommonDict<T>::make_entry(const std::string& col, std::shared_ptr<T>& sp_ent
         const std::string& mname = field->message_type()->name();
         google::protobuf::Message* msg = nullptr;
 
+
         if (is_repeated) {
-            msg = reflection->MutableRepeatedMessage(entry, field, i);
+            msg = reflection->AddMessage(entry, field);
         } else {
             msg = reflection->MutableMessage(entry, field);
         }
@@ -353,7 +354,7 @@ int CommonDict<T>::read_line(const std::string& line) {
             for (int i = 0; i < vs.size(); ++i) {
                 std::string& data = vs[i];
                 LOG(INFO)<< "repeated cpp_type:" << field->cpp_type() <<" array" << i << "=" << data;
-                int ret = make_entry(data, entry, field, true, i);
+                int ret = make_entry(data, entry, field, true);
 
                 if (ret != 0) {
                     LOG(ERROR)<< "make_entry failed:"<< data;
