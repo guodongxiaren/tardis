@@ -57,6 +57,13 @@ private:
     // @return:     是否成功 0:成功 -1失败
     int read_line(const std::string& line);
 
+    // @breif:      string to message
+    // @param[in]:  line string
+    // @param[out]: message
+    // @param[out]: p_key
+    // @return:     status 0:suc -1:failed
+    int string_to_message(const std::string& line, google::protobuf::Message* message, const std::string& sep, std::string* p_key);
+
     // @breif:      加载并解析词表
     // @return:     是否成功 0:成功 -1失败
     int load_file();
@@ -68,7 +75,7 @@ private:
     // @param[in]:  is_repeated 表示是否是数组
     // @param[in]:  i 如果是数组，表示是所位于的数组下标
     // @return:     是否成功 0:成功 -1失败
-    static int make_entry(const std::string& col, std::shared_ptr<T>& sp_entry,
+    static int make_entry(const std::string& col, google::protobuf::Message* entry, 
                           const google::protobuf::FieldDescriptor* field, bool is_repeated = false);
 
 private:
@@ -112,9 +119,8 @@ std::shared_ptr<CommonDict<T>> CommonDict<T>::get_instance(const std::string& di
 }
 
 template <typename T>
-int CommonDict<T>::make_entry(const std::string& col, std::shared_ptr<T>& sp_entry,
+int CommonDict<T>::make_entry(const std::string& col, google::protobuf::Message* entry,
                               const google::protobuf::FieldDescriptor* field, bool is_repeated) {
-    T* entry = sp_entry.get();
     const google::protobuf::Reflection* reflection = entry->GetReflection();
 
     switch (field->cpp_type()) {
@@ -296,15 +302,30 @@ int CommonDict<T>::load_file() {
 
 template<typename T>
 int CommonDict<T>::read_line(const std::string& line) {
+    std::string key;
+
+    std::shared_ptr<T> entry = std::make_shared<T>();
+    string_to_message(line, entry.get(), "\t", &key);
+
+    int next_record_index = _record.size();
+    _record.emplace_back(entry);
+
+    _dict[key] = next_record_index;
+
+    return 0;
+}
+
+template<typename T>
+int CommonDict<T>::string_to_message(const std::string& line, google::protobuf::Message* message,
+                                     const std::string& sep, std::string* p_key) {
     std::vector<std::string> cols;
 
-    if (split(cols, line, "\t") <= 0) {
+    if (split(cols, line, sep) <= 0) {
         LOG(ERROR)<< "split failed:"<< line;
         return -1;
     }
 
-    std::shared_ptr<T> entry = std::make_shared<T>();
-    const google::protobuf::Descriptor* descriptor = entry->GetDescriptor();
+    const google::protobuf::Descriptor* descriptor = message->GetDescriptor();
 
     int field_count = descriptor->field_count();
 
@@ -334,7 +355,7 @@ int CommonDict<T>::read_line(const std::string& line) {
 
         if (!field->is_repeated()) {
             LOG(INFO)<< "cpp_type:"<< field->cpp_type();
-            int ret = make_entry(col, entry, field);
+            int ret = make_entry(col, message, field);
 
             if (ret != 0) {
                 LOG(ERROR)<< "make_entry failed:"<< col;
@@ -351,7 +372,7 @@ int CommonDict<T>::read_line(const std::string& line) {
             for (int i = 0; i < vs.size(); ++i) {
                 std::string& data = vs[i];
                 LOG(INFO)<< "repeated cpp_type:" << field->cpp_type() <<" array" << i << "=" << data;
-                int ret = make_entry(data, entry, field, true);
+                int ret = make_entry(data, message, field, true);
 
                 if (ret != 0) {
                     LOG(ERROR)<< "make_entry failed:"<< data;
@@ -360,18 +381,14 @@ int CommonDict<T>::read_line(const std::string& line) {
             }
         }
     }
-
-    int next_record_index = _record.size();
-    _record.emplace_back(entry);
-    // 如果词表没设置键，则行记录做键
-    std::string key = composite_key.str();
-
-    if (is_first) {
-        std::string key = line;
+    if (p_key) {
+        // 如果词表没设置键，则行记录做键
+        if (is_first) {
+            *p_key = line;
+        } else {
+            *p_key = composite_key.str();
+        }
     }
-
-    _dict[key] = next_record_index;
-
     return 0;
 }
 
