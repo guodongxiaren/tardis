@@ -296,10 +296,7 @@ int CommonDict<T>::load_file() {
 
 template<typename T>
 int CommonDict<T>::read_line(const std::string& line) {
-    using std::string;
-    using std::vector;
-    using std::stringstream;
-    vector<string> cols;
+    std::vector<std::string> cols;
 
     if (split(cols, line, "\t") <= 0) {
         LOG(ERROR)<< "split failed:"<< line;
@@ -317,11 +314,11 @@ int CommonDict<T>::read_line(const std::string& line) {
     }
 
     // 记录组合键，也可以是单键
-    stringstream composite_key;
+    std::stringstream composite_key;
     bool is_first = true;
 
     for (int i = 0; i < field_count; ++i) {
-        const string& col = cols[i];
+        const std::string& col = cols[i];
         LOG(INFO)<< "field_" << i <<" col:"<< col;
         auto field = descriptor->field(i);
         bool key_opt = field->options().GetExtension(commdict::key);
