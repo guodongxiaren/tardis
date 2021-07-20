@@ -343,23 +343,15 @@ int CommonDict<T>::read_line(const std::string& line) {
                 return -1;
             }
         } else {
-            vector<string> vs;
+            std::vector<std::string> vs;
 
-            if (split(vs, col, ":") <= 0) {
-                LOG(ERROR)<< "split failed:"<< col;
-                return -1;
-            }
-
-            int num = stoi(vs[0]);
-            vector<string> data_list;
-
-            if (split(data_list, vs[1], ",") <= 0) {
+            if (split(vs, col, ",") <= 0) {
                 LOG(ERROR)<< "split failed:"<< vs[1];
                 return -1;
             }
 
-            for (int i = 0; i < num; ++i) {
-                string data = data_list[i];
+            for (int i = 0; i < vs.size(); ++i) {
+                std::string& data = vs[i];
                 LOG(INFO)<< "repeated cpp_type:" << field->cpp_type() <<" array" << i << "=" << data;
                 int ret = make_entry(data, entry, field, true, i);
 
@@ -374,10 +366,10 @@ int CommonDict<T>::read_line(const std::string& line) {
     int next_record_index = _record.size();
     _record.emplace_back(entry);
     // 如果词表没设置键，则行记录做键
-    string key = composite_key.str();
+    std::string key = composite_key.str();
 
     if (is_first) {
-        string key = line;
+        std::string key = line;
     }
 
     _dict[key] = next_record_index;
