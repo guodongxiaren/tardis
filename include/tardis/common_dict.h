@@ -330,7 +330,7 @@ int CommonDict<T>::string_to_message(const std::string& line, google::protobuf::
         const std::string& col = cols[i];
         LOG(INFO)<< "field_" << i <<" col:"<< col;
         auto field = descriptor->field(i);
-        bool key_opt = field->options().GetExtension(commdict::key);
+        bool key_opt = field->options().GetExtension(tardis::key);
 
         if (key_opt) {
             if (is_first) {

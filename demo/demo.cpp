@@ -11,7 +11,7 @@
 #include <string>
 
 #include <glog/logging.h>
-#include "common_dict.h"
+#include "tardis/common_dict.h"
 #include "student.pb.h"
 #include "userbid.pb.h"
 

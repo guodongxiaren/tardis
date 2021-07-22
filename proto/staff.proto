@@ -7,7 +7,7 @@ message Prov {
 };
 
 message Staff {
-    int32 id = 1[(commdict.key) = true];
+    int32 id = 1[(tardis.key) = true];
     string name = 2;
     int32 score = 3;
     Prov prov = 4;

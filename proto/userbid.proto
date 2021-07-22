@@ -2,6 +2,6 @@ syntax="proto3";
 import "commdict-key.proto";
 
 message UserBid {
-    int32 userid = 1[(commdict.key) = true];
-    string bidword = 2[(commdict.key) = true];
+    int32 userid = 1[(tardis.key) = true];
+    string bidword = 2[(tardis.key) = true];
 }

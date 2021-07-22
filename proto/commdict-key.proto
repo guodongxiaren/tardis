@@ -1,7 +1,7 @@
 syntax="proto3";
 import "google/protobuf/descriptor.proto";
 
-package commdict;
+package tardis;
 
 extend google.protobuf.FieldOptions {
     optional bool key = 5000;

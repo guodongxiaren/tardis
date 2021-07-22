@@ -12,7 +12,7 @@ DEMO=demo
 ALL: ENV $(DEMO)
 
 $(DEMO): $(PROTOOBJS) $(OBJS)
-	g++ demo/*.cpp proto/*.o -I commdict -I proto -lglog -lprotobuf -o output/bin/$@
+	g++ demo/*.cpp proto/*.o -I include -I proto -lglog -lprotobuf -o output/bin/$@
 
 
 ENV:
