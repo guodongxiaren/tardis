@@ -4,5 +4,5 @@ import "google/protobuf/descriptor.proto";
 package tardis;
 
 extend google.protobuf.FieldOptions {
-    optional bool key = 5000;
+    bool key = 50000;
 };
