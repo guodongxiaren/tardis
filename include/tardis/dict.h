@@ -20,7 +20,7 @@
 #include <glog/logging.h>
 #include <google/protobuf/descriptor.h>
 
-#include "commdict-key.pb.h"
+#include "tardis.pb.h"
 #include "common.h"
 
 template<typename T>

@@ -1,5 +1,5 @@
 syntax="proto3";
-import "commdict-key.proto";
+import "tardis.proto";
 
 message Prov {
     int32 id = 1;

@@ -1,5 +1,5 @@
 syntax="proto3";
-import "commdict-key.proto";
+import "tardis.proto";
 
 message UserBid {
     int32 userid = 1[(tardis.key) = true];

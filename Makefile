@@ -3,15 +3,11 @@ PROTOFILE=$(wildcard $(PROTODIR)/*.proto)
 PROTOSRC=$(patsubst %.proto,%.pb.cc,$(PROTOFILE))
 PROTOOBJS=$(patsubst %.cc,%.o, $(PROTOSRC))
 
-SRC_DIR=commdict/
-SRCS=$(wildcard $(SRC_DIR)/*.cpp)
-OBJS=$(patsubst %.cpp,%.o, $(SRCS))
-
 DEMO=demo
 
 ALL: ENV $(DEMO)
 
-$(DEMO): $(PROTOOBJS) $(OBJS)
+$(DEMO): $(PROTOOBJS)
 	g++ demo/*.cpp proto/*.o -I include -I proto -lglog -lprotobuf -o output/bin/$@
 
 
@@ -29,5 +25,4 @@ $(PROTOSRC): $(PROTOFILE)
 
 clean:
 	cd $(PROTODIR); rm -f *.h; rm -f *.cc; rm -f *.o
-	cd $(SRC_DIR); rm -f *.o
 	rm -rf output
