@@ -1,7 +1,8 @@
-syntax="proto2";
-import "commdict-key.proto";
+syntax="proto3";
+import "tardis.proto";
 
 message UserBid {
-    required int32 userid = 1[(commdict.key) = true];
-    required string bidword = 2[(commdict.key) = true];
+    option (tardis.separator) = "\t";
+    int32 userid = 1[(tardis.key) = true];
+    string bidword = 2[(tardis.key) = true];
 }

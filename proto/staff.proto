@@ -1,15 +1,17 @@
-syntax="proto2";
-import "commdict-key.proto";
+syntax="proto3";
+import "tardis.proto";
 
 message Prov {
-    required int32 id = 1;
-    required string name = 2;
+    option (tardis.separator) = "|";
+    int32 id = 1;
+    string name = 2;
 };
 
 message Staff {
-    required int32 id = 1[(commdict.key) = true];
-    required string name = 2;
-    required int32 score = 3;
-    required Prov prov = 4;
-    repeated string hobby = 5;
+    option (tardis.separator) = "\t";
+    int32 id = 1[(tardis.key) = true];
+    string name = 2;
+    int32 score = 3;
+    Prov prov = 4;
+    repeated string hobby = 5[(tardis.delimiter) = ","];
 }

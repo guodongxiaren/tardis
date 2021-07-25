@@ -1,8 +1,0 @@
-syntax="proto2";
-import "google/protobuf/descriptor.proto";
-
-package commdict;
-
-extend google.protobuf.FieldOptions {
-    optional bool key = 5000;
-};

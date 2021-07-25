@@ -1,16 +1,18 @@
-syntax="proto2";
-import "commdict-key.proto";
+syntax="proto3";
+import "tardis.proto";
 
 message Address {
-    required string city = 1;
-    required string street = 2;
-    required string building = 3;
+    option (tardis.separator) = "|";
+    string city = 1;
+    string street = 2;
+    string building = 3;
 };
 
 message Student {
-    required int32 id = 1[(commdict.key) = true];
-    required string name = 2;
-    required int32 score = 3;
-    required Address addr = 4;
-    repeated string hobby = 5;
+    option (tardis.separator) = "\t";
+    int32 id = 1[(tardis.key) = true];
+    string name = 2;
+    int32 score = 3;
+    Address addr = 4;
+    repeated string hobby = 5[(tardis.delimiter) = ","];
 }

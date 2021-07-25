@@ -20,15 +20,16 @@
 #include <glog/logging.h>
 #include <google/protobuf/descriptor.h>
 
-#include "commdict-key.pb.h"
+#include "tardis.pb.h"
 #include "common.h"
-#include "factory.h"
+
+namespace tardis {
 
 template<typename T>
-class CommonDict {
+class Dict {
 private:
     // @brief:     构造函数
-    CommonDict(const std::string& dict_filename): _dict_filename(dict_filename) {};
+    Dict(const std::string& dict_filename): _dict_filename(dict_filename) {};
 
 public:
     // @brief:     通过key查找记录
@@ -49,13 +50,20 @@ public:
     // @brief:     指定词表文件路径，构造词表类实例
     // @param[in]  dict_filename词表路径
     // @return     shared_ptr版本的词表结构体指针
-    static std::shared_ptr<CommonDict<T>> get_instance(const std::string& dict_filename);
+    static std::shared_ptr<Dict<T>> get_instance(const std::string& dict_filename);
 
 private:
     // @breif:      解析单行数据
     // @param[in]:  line 数据字符串
     // @return:     是否成功 0:成功 -1失败
     int read_line(const std::string& line);
+
+    // @breif:      string to message
+    // @param[in]:  line string
+    // @param[out]: message
+    // @param[out]: p_key
+    // @return:     status 0:suc -1:failed
+    static int string_to_message(const std::string& line, google::protobuf::Message* message, std::string* p_key);
 
     // @breif:      加载并解析词表
     // @return:     是否成功 0:成功 -1失败
@@ -68,32 +76,32 @@ private:
     // @param[in]:  is_repeated 表示是否是数组
     // @param[in]:  i 如果是数组，表示是所位于的数组下标
     // @return:     是否成功 0:成功 -1失败
-    static int make_entry(const std::string& col, std::shared_ptr<T>& sp_entry,
-                          const google::protobuf::FieldDescriptor* field, bool is_repeated = false, int i = 0);
+    static int make_entry(const std::string& col, google::protobuf::Message* entry, 
+                          const google::protobuf::FieldDescriptor* field, bool is_repeated = false);
 
 private:
     std::map<std::string, int> _dict; // key-value 词表, value是记录对应的行号下标
     std::vector<std::shared_ptr<T>> _record; // 存储每行记录
     std::string _dict_filename; // 词表文件路径
 
-    static std::map<std::string, std::shared_ptr<CommonDict<T>>>
-    _s_dict; // 单例所需的map，key为词表路径，一个词表文件只能实例化出一个CommonDict
+    static std::map<std::string, std::shared_ptr<Dict<T>>>
+    _s_dict; // 单例所需的map，key为词表路径，一个词表文件只能实例化出一个Dict
     static std::mutex _s_lock; // 互斥锁
 };
 /* static */
 template<typename T>
-std::map<std::string, std::shared_ptr<CommonDict<T>>> CommonDict<T>::_s_dict;
+std::map<std::string, std::shared_ptr<Dict<T>>> Dict<T>::_s_dict;
 
 template<typename T>
-std::mutex CommonDict<T>::_s_lock;
+std::mutex Dict<T>::_s_lock;
 
 template<typename T>
-std::shared_ptr<CommonDict<T>> CommonDict<T>::get_instance(const std::string& dict_filename) {
+std::shared_ptr<Dict<T>> Dict<T>::get_instance(const std::string& dict_filename) {
     // 互斥锁
     std::lock_guard<std::mutex> lock(_s_lock);
 
     if (_s_dict.find(dict_filename) == _s_dict.end()) {
-        CommonDict<T>* dict = new(std::nothrow)CommonDict<T>(dict_filename);
+        Dict<T>* dict = new(std::nothrow)Dict<T>(dict_filename);
 
         if (dict == nullptr) {
             LOG(FATAL)<< "new Dict:"<< dict_filename;
@@ -105,21 +113,20 @@ std::shared_ptr<CommonDict<T>> CommonDict<T>::get_instance(const std::string& di
             return nullptr;
         }
 
-        _s_dict[dict_filename] = std::shared_ptr<CommonDict<T>>(dict);
+        _s_dict[dict_filename] = std::shared_ptr<Dict<T>>(dict);
     }
 
     return _s_dict[dict_filename];
 }
 
 template <typename T>
-int CommonDict<T>::make_entry(const std::string& col, std::shared_ptr<T>& sp_entry,
-                              const google::protobuf::FieldDescriptor* field, bool is_repeated, int i) {
-    T* entry = sp_entry.get();
+int Dict<T>::make_entry(const std::string& col, google::protobuf::Message* entry,
+                              const google::protobuf::FieldDescriptor* field, bool is_repeated) {
     const google::protobuf::Reflection* reflection = entry->GetReflection();
 
     switch (field->cpp_type()) {
     case google::protobuf::FieldDescriptor::CppType::CPPTYPE_BOOL: {
-        bool value = (stoi(col) == 1 ? true : false);
+        bool value = (stoi(col) == 1);
 
         if (is_repeated) {
             reflection->AddBool(entry, field, value);
@@ -214,23 +221,13 @@ int CommonDict<T>::make_entry(const std::string& col, std::shared_ptr<T>& sp_ent
         const std::string& mname = field->message_type()->name();
         google::protobuf::Message* msg = nullptr;
 
+
         if (is_repeated) {
-            msg = reflection->MutableRepeatedMessage(entry, field, i);
+            msg = reflection->AddMessage(entry, field);
         } else {
             msg = reflection->MutableMessage(entry, field);
         }
-
-        parse_function parse = Factory::get(mname);
-
-        if (parse == nullptr) {
-            LOG(ERROR)<< "get parse func failed:"<< mname;
-            return -1;
-        }
-
-        if (parse(col, msg) != 0) {
-            LOG(ERROR)<< "parse [" << mname << "][" << col << "%s] failed";
-            return -1;
-        }
+        return string_to_message(col, msg, nullptr);
 
         break;
     }
@@ -245,7 +242,7 @@ int CommonDict<T>::make_entry(const std::string& col, std::shared_ptr<T>& sp_ent
 /* non static */
 template<typename T>
 template<typename ...Args>
-std::shared_ptr<T> CommonDict<T>::get_record_by_key(Args... keys) {
+std::shared_ptr<T> Dict<T>::get_record_by_key(Args... keys) {
     if (_dict.size() == 0) {
         LOG(ERROR)<< "dict is empty";
         return nullptr;
@@ -263,26 +260,22 @@ std::shared_ptr<T> CommonDict<T>::get_record_by_key(Args... keys) {
 }
 
 template<typename T>
-int CommonDict<T>::load_file() {
-    using std::string;
-    using std::vector;
-    using std::ifstream;
-
-    ifstream fin(_dict_filename);
+int Dict<T>::load_file() {
+    std::ifstream fin(_dict_filename);
 
     if (!fin) {
         LOG(ERROR)<< "open file:" << _dict_filename << " failed";
         return 2;
     }
 
-    string line;
-    vector<string> lines;
+    std::string line;
+    std::vector<std::string> lines;
 
     while (getline(fin, line)) {
         lines.emplace_back(line);
     }
 
-    for (string & line : lines) {
+    for (std::string& line : lines) {
 
         if (this->read_line(line) != 0) {
             LOG(ERROR)<< "read_line:"<< line;
@@ -294,19 +287,33 @@ int CommonDict<T>::load_file() {
 }
 
 template<typename T>
-int CommonDict<T>::read_line(const std::string& line) {
-    using std::string;
-    using std::vector;
-    using std::stringstream;
-    vector<string> cols;
+int Dict<T>::read_line(const std::string& line) {
+    std::string key;
 
-    if (split(cols, line, "\t") <= 0) {
+    std::shared_ptr<T> entry = std::make_shared<T>();
+    string_to_message(line, entry.get(), &key);
+
+    int next_record_index = _record.size();
+    _record.emplace_back(entry);
+
+    _dict[key] = next_record_index;
+
+    return 0;
+}
+
+template<typename T>
+int Dict<T>::string_to_message(const std::string& line,
+                                     google::protobuf::Message* message,
+                                     std::string* p_key) {
+    std::vector<std::string> cols;
+    const google::protobuf::Descriptor* descriptor = message->GetDescriptor();
+
+    auto& sep = descriptor->options().GetExtension(tardis::separator);
+
+    if (split(cols, line, sep) <= 0) {
         LOG(ERROR)<< "split failed:"<< line;
         return -1;
     }
-
-    std::shared_ptr<T> entry = std::make_shared<T>();
-    const google::protobuf::Descriptor* descriptor = entry->GetDescriptor();
 
     int field_count = descriptor->field_count();
 
@@ -316,14 +323,15 @@ int CommonDict<T>::read_line(const std::string& line) {
     }
 
     // 记录组合键，也可以是单键
-    stringstream composite_key;
+    std::stringstream composite_key;
     bool is_first = true;
 
     for (int i = 0; i < field_count; ++i) {
-        const string& col = cols[i];
-        LOG(INFO)<< "field_" << i <<" col:"<< col;
+        const std::string& col = cols[i];
         auto field = descriptor->field(i);
-        bool key_opt = field->options().GetExtension(commdict::key);
+        LOG(INFO)<< "field_" << i <<" col:"<< col << " cpp_type:" << field->cpp_type();
+
+        bool key_opt = field->options().GetExtension(tardis::key);
 
         if (key_opt) {
             if (is_first) {
@@ -335,17 +343,17 @@ int CommonDict<T>::read_line(const std::string& line) {
         }
 
         if (!field->is_repeated()) {
-            LOG(INFO)<< "cpp_type:"<< field->cpp_type();
-            int ret = make_entry(col, entry, field);
+            int ret = make_entry(col, message, field);
 
             if (ret != 0) {
-                LOG(ERROR)<< "make_entry failed:"<< col;
+                LOG(ERROR)<< "make field failed:"<< col;
                 return -1;
             }
         } else {
+            auto& del = field->options().GetExtension(tardis::delimiter);
             std::vector<std::string> vs;
 
-            if (split(vs, col, ",") <= 0) {
+            if (split(vs, col, del) <= 0) {
                 LOG(ERROR)<< "split failed:"<< vs[1];
                 return -1;
             }
@@ -353,7 +361,7 @@ int CommonDict<T>::read_line(const std::string& line) {
             for (int i = 0; i < vs.size(); ++i) {
                 std::string& data = vs[i];
                 LOG(INFO)<< "repeated cpp_type:" << field->cpp_type() <<" array" << i << "=" << data;
-                int ret = make_entry(data, entry, field, true, i);
+                int ret = make_entry(data, message, field, true);
 
                 if (ret != 0) {
                     LOG(ERROR)<< "make_entry failed:"<< data;
@@ -362,28 +370,24 @@ int CommonDict<T>::read_line(const std::string& line) {
             }
         }
     }
-
-    int next_record_index = _record.size();
-    _record.emplace_back(entry);
-    // 如果词表没设置键，则行记录做键
-    std::string key = composite_key.str();
-
-    if (is_first) {
-        std::string key = line;
+    if (p_key) {
+        // 如果词表没设置键，则行记录做键
+        if (is_first) {
+            *p_key = line;
+        } else {
+            *p_key = composite_key.str();
+        }
     }
-
-    _dict[key] = next_record_index;
-
     return 0;
 }
 
 template<typename T>
-int CommonDict<T>::get_record_num() {
+int Dict<T>::get_record_num() {
     return _record.size();
 }
 
 template<typename T>
-std::shared_ptr<T> CommonDict<T>::get_record_by_index(int index) {
+std::shared_ptr<T> Dict<T>::get_record_by_index(int index) {
     if (index >= _record.size()) {
         return nullptr;
     } else {
@@ -391,3 +395,4 @@ std::shared_ptr<T> CommonDict<T>::get_record_by_index(int index) {
     }
 }
 
+} // namespace tardis

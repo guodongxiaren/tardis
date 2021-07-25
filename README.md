@@ -14,20 +14,20 @@ make
 ### 1. 词表proto和key
 在proto目录下，编写proto文件，每个字段对应词表文件一列
 ```
-syntax="proto2";
-import "commdict-key.proto";
+syntax="proto3";
+import "tardis.proto";
 
 message Student {
-    required int32 id = 1[(commdict.key) = true];
-    required string name = 2;
-    required int32 score = 3;
+    int32 id = 1[(tardis.key) = true];
+    string name = 2;
+    int32 score = 3;
 }
 ```
 主键（key）需要使用commdict.key指定，支持多个字段做联合主键，比如：
 ```
 message UserBid {
-    required int32 userid = 1[(commdict.key) = true];
-    required string bidword = 2[(commdict.key) = true];
+    int32 userid = 1[(tardis.key) = true];
+    string bidword = 2[(tardis.key) = true];
 }
 
 ```
@@ -36,16 +36,16 @@ message UserBid {
 
 ```
 message Address {
-    required string city = 1;
-    required string street = 2;
-    required string building = 3;
+    string city = 1;
+    string street = 2;
+    string building = 3;
 };
 
 message Student {
-    required int32 id = 1[(commdict.key) = true];
-    required string name = 2;
-    required int32 score = 3;
-    required Address addr = 4;
+    int32 id = 1[(tardis.key) = true];
+    string name = 2;
+    int32 score = 3;
+    Address addr = 4;
 }
 
 ```
@@ -80,11 +80,11 @@ Factory::Register register_address("Address", parse_address);
 数组使用proto的repeated即可。增加一列hobby，表示数组
 ```
 message Student {
-    required int32 id = 1[(commdict.key) = true];
-    required string name = 2;
-    required int32 score = 3;
-    required Address addr = 4;
-    repeated string hobby = 5;
+    int32 id = 1[(tardis.key) = true];
+    string name = 2;
+    int32 score = 3;
+    Address addr = 4;
+    string hobby = 5;
 }
 
 ```
@@ -102,7 +102,7 @@ message Student {
 ```
 #include <iostream>
 #include <string>
-#include "common_dict.h"
+#include "tardis/dict.h"
 #include "student.pb.h"
 
 using std::string;

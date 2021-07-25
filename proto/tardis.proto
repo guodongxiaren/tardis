@@ -1,0 +1,13 @@
+syntax="proto3";
+import "google/protobuf/descriptor.proto";
+
+package tardis;
+
+extend google.protobuf.FieldOptions {
+    bool key = 50000;
+    string delimiter = 50001;
+};
+
+extend google.protobuf.MessageOptions {
+    string separator = 51001;
+};
