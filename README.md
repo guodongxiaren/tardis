@@ -13,7 +13,7 @@ make
 ## 使用方法
 ### 1. 词表proto和key
 在proto目录下，编写proto文件，每个字段对应词表文件一列
-```
+```proto
 syntax="proto3";
 import "tardis.proto";
 
@@ -24,7 +24,7 @@ message Student {
 }
 ```
 主键（key）需要使用commdict.key指定，支持多个字段做联合主键，比如：
-```
+```proto
 message UserBid {
     int32 userid = 1[(tardis.key) = true];
     string bidword = 2[(tardis.key) = true];
@@ -34,7 +34,7 @@ message UserBid {
 ### 2. 自定义类型
 字段支持自定义类型（如下Address，表示地址），但需要自定义parse函数（parseAddress）。
 
-```
+```proto
 message Address {
     string city = 1;
     string street = 2;
@@ -78,7 +78,7 @@ Factory::Register register_address("Address", parse_address);
 ```
 ### 3.数组表示和定义
 数组使用proto的repeated即可。增加一列hobby，表示数组
-```
+```proto
 message Student {
     int32 id = 1[(tardis.key) = true];
     string name = 2;
@@ -94,12 +94,12 @@ message Student {
 ```
 完整的词表示例(TAB分隔)
 ```
-1	王维	100	北京|西北旺|唐家岭新城	电影,动漫
-2	李磊	99	深圳|前海路|星海名城	做饭,唱歌
-3	李明	69	南昌|学府路|绿园	唱歌,运动,演讲
+1	江帆	100	北京|西北旺|唐家岭新城	电影,动漫
+2	潘剑	99	深圳|前海路|星海名城	做饭,唱歌
+3	刘兴	69	南昌|学府路|绿园	唱歌,运动,小说
 ```
 ### 4. 代码调用参考
-```
+```cpp
 #include <iostream>
 #include <string>
 #include "tardis/dict.h"
