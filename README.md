@@ -18,30 +18,35 @@ syntax="proto3";
 import "tardis.proto";
 
 message Student {
+    (tardis.separator) = "\t";
     int32 id = 1[(tardis.key) = true];
     string name = 2;
     int32 score = 3;
 }
 ```
-主键（key）需要使用commdict.key指定，支持多个字段做联合主键，比如：
+主键（key）需要使用tardis.key指定，支持多个字段做联合主键，比如：
 ```proto
 message UserBid {
     int32 userid = 1[(tardis.key) = true];
     string bidword = 2[(tardis.key) = true];
 }
-
 ```
+字段分隔符用 tardis.separator 指定。
+
 ### 2. 自定义类型
-字段支持自定义类型（如下Address，表示地址），但需要自定义parse函数（parseAddress）。
+
+字段支持自定义类型（如下Address，表示地址），但需要定义和上级不同的分隔符。
 
 ```proto
 message Address {
+    (tardis.separator) = "|";
     string city = 1;
     string street = 2;
     string building = 3;
 };
 
 message Student {
+    (tardis.separator) = "\t";
     int32 id = 1[(tardis.key) = true];
     string name = 2;
     int32 score = 3;
@@ -49,42 +54,21 @@ message Student {
 }
 
 ```
-自定义类型需要在commdict/factory.cpp文件中增加parse函数。
-另外定义完之后需要使用`REGISTER_PARSER`宏来注册。注册之后才能被工厂类找到。
-```c++
-int parse_address(const string& line, Address* addr) {
-    try {
-        vector<string> vs = split(line, "|");
 
-        if (vs.size() < 3) {
-            return -1;
-        }
-
-        addr->set_city(vs[0]);
-        addr->set_street(vs[1]);
-        addr->set_building(vs[2]);
-        return 0;
-    } catch (...) {
-        return -1;
-    }
-}
-
-Factory::Register register_address("Address", parse_address);
-```
 如上表示|分隔的字段表示地址，在词表中
 ```
 北京|西北旺|唐家岭新城
 
 ```
 ### 3.数组表示和定义
-数组使用proto的repeated即可。增加一列hobby，表示数组
+数组使用proto的repeated即可。增加一列hobby，表示数组，数组也需要用 tardis.delimiter 指定每个子元素之间的分隔符。
 ```proto
 message Student {
     int32 id = 1[(tardis.key) = true];
     string name = 2;
     int32 score = 3;
     Address addr = 4;
-    string hobby = 5;
+    repeated string hobby = 5[(tardis.delimiter)=","];
 }
 
 ```
@@ -111,7 +95,7 @@ using std::endl;
 
 int main() {
     string dict_name = "../data/student.dict";
-    auto cd = CommonDict<Student>::get_instance(dict_name);
+    auto cd = tardis::Dict<Student>::get_instance(dict_name);
     auto student = cd->find(1); // find函数
     cout << student->name() << endl;
     cout << student->hobby(0) << endl;
@@ -124,7 +108,7 @@ find函数的参数就是主键的值，支持基本数据类型，如果主键�
 如果是联合主键，find也支持可变参数。比如：
 ```c++
     dict_name = "/../data/userbid.dict";
-    auto cub = CommonDict<UserBid>::get_instance(dict_name);
+    auto cub = tardis::Dict<UserBid>::get_instance(dict_name);
     auto ub = cub->find(101, "租房"); // find函数
     cout << ub->bidword() << endl;
 ```
