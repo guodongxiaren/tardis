@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
 
     std::string dict_name = path + "/data/student.dict";
-    auto cd = CommonDict<Student>::get_instance(dict_name);
+    auto cd = tardis::Dict<Student>::get_instance(dict_name);
     auto student = cd->get_record_by_index(1);
     std::cout << student->name() << std::endl;
     std::cout << student->hobby(0) << std::endl;
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 
     
     dict_name = path + "/data/userbid.dict";
-    auto cub = CommonDict<UserBid>::get_instance(dict_name);
+    auto cub = tardis::Dict<UserBid>::get_instance(dict_name);
     auto ub = cub->get_record_by_key(101, "租房");
     std::cout << ub->bidword() << std::endl;
 
