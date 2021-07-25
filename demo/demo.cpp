@@ -29,9 +29,10 @@ int main(int argc, char** argv) {
     auto cd = CommonDict<Student>::get_instance(dict_name);
     auto student = cd->get_record_by_index(1);
     std::cout << student->name() << std::endl;
-    std::cout << student->hobby(1) << std::endl;
+    std::cout << student->hobby(0) << std::endl;
     std::cout << student->addr().city() << std::endl;
 
+    
     dict_name = path + "/data/userbid.dict";
     auto cub = CommonDict<UserBid>::get_instance(dict_name);
     auto ub = cub->get_record_by_key(101, "租房");

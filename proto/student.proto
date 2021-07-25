@@ -2,15 +2,17 @@ syntax="proto3";
 import "tardis.proto";
 
 message Address {
+    option (tardis.separator) = "|";
     string city = 1;
     string street = 2;
     string building = 3;
 };
 
 message Student {
+    option (tardis.separator) = "\t";
     int32 id = 1[(tardis.key) = true];
     string name = 2;
     int32 score = 3;
     Address addr = 4;
-    repeated string hobby = 5;
+    repeated string hobby = 5[(tardis.delimiter) = ","];
 }

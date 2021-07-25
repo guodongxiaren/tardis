@@ -61,7 +61,7 @@ private:
     // @param[out]: message
     // @param[out]: p_key
     // @return:     status 0:suc -1:failed
-    static int string_to_message(const std::string& line, google::protobuf::Message* message, const std::string& sep, std::string* p_key);
+    static int string_to_message(const std::string& line, google::protobuf::Message* message, std::string* p_key);
 
     // @breif:      加载并解析词表
     // @return:     是否成功 0:成功 -1失败
@@ -225,11 +225,7 @@ int CommonDict<T>::make_entry(const std::string& col, google::protobuf::Message*
         } else {
             msg = reflection->MutableMessage(entry, field);
         }
-        // TODO
-        int ret = string_to_message(col, msg, "\t", nullptr);
-        if (!ret) {
-            return -1;
-        }
+        return string_to_message(col, msg, nullptr);
 
         break;
     }
@@ -293,7 +289,7 @@ int CommonDict<T>::read_line(const std::string& line) {
     std::string key;
 
     std::shared_ptr<T> entry = std::make_shared<T>();
-    string_to_message(line, entry.get(), "\t", &key);
+    string_to_message(line, entry.get(), &key);
 
     int next_record_index = _record.size();
     _record.emplace_back(entry);
@@ -304,16 +300,18 @@ int CommonDict<T>::read_line(const std::string& line) {
 }
 
 template<typename T>
-int CommonDict<T>::string_to_message(const std::string& line, google::protobuf::Message* message,
-                                     const std::string& sep, std::string* p_key) {
+int CommonDict<T>::string_to_message(const std::string& line,
+                                     google::protobuf::Message* message,
+                                     std::string* p_key) {
     std::vector<std::string> cols;
+    const google::protobuf::Descriptor* descriptor = message->GetDescriptor();
+
+    auto& sep = descriptor->options().GetExtension(tardis::separator);
 
     if (split(cols, line, sep) <= 0) {
         LOG(ERROR)<< "split failed:"<< line;
         return -1;
     }
-
-    const google::protobuf::Descriptor* descriptor = message->GetDescriptor();
 
     int field_count = descriptor->field_count();
 
@@ -328,8 +326,9 @@ int CommonDict<T>::string_to_message(const std::string& line, google::protobuf::
 
     for (int i = 0; i < field_count; ++i) {
         const std::string& col = cols[i];
-        LOG(INFO)<< "field_" << i <<" col:"<< col;
         auto field = descriptor->field(i);
+        LOG(INFO)<< "field_" << i <<" col:"<< col << " cpp_type:" << field->cpp_type();
+
         bool key_opt = field->options().GetExtension(tardis::key);
 
         if (key_opt) {
@@ -342,17 +341,17 @@ int CommonDict<T>::string_to_message(const std::string& line, google::protobuf::
         }
 
         if (!field->is_repeated()) {
-            LOG(INFO)<< "cpp_type:"<< field->cpp_type();
             int ret = make_entry(col, message, field);
 
             if (ret != 0) {
-                LOG(ERROR)<< "make_entry failed:"<< col;
+                LOG(ERROR)<< "make field failed:"<< col;
                 return -1;
             }
         } else {
+            auto& del = field->options().GetExtension(tardis::delimiter);
             std::vector<std::string> vs;
 
-            if (split(vs, col, ",") <= 0) {
+            if (split(vs, col, del) <= 0) {
                 LOG(ERROR)<< "split failed:"<< vs[1];
                 return -1;
             }
