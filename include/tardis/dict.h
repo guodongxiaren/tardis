@@ -22,10 +22,7 @@
 
 #include "tardis.pb.h"
 #include "common.h"
-enum class DictName {
-    STUDENT,
-    USERBID,
-};
+#define DictName const char*
 
 namespace tardis {
 
