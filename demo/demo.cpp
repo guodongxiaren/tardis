@@ -14,7 +14,6 @@
 #include "tardis/dict.h"
 #include "student.pb.h"
 #include "userbid.pb.h"
-
 int main(int argc, char** argv) {
     // 从配置文件load配置，并打开日志
     // 在主线程使用
@@ -26,16 +25,18 @@ int main(int argc, char** argv) {
 
 
     std::string dict_name = path + "/data/student.dict";
-    auto cd = tardis::Dict<Student>::get_instance(dict_name);
-    auto student = cd->get_record_by_index(1);
+    auto& cd = tardis::Dict<Student, DictName::STUDENT>::get_instance();
+    cd.load_file(dict_name);
+    auto student = cd.get_record_by_index(1);
     std::cout << student->name() << std::endl;
     std::cout << student->hobby(0) << std::endl;
     std::cout << student->addr().city() << std::endl;
 
     
     dict_name = path + "/data/userbid.dict";
-    auto cub = tardis::Dict<UserBid>::get_instance(dict_name);
-    auto ub = cub->get_record_by_key(101, "租房");
+    auto& cub = tardis::Dict<UserBid, DictName::USERBID>::get_instance();
+    cub.load_file(dict_name);
+    auto ub = cub.get_record_by_key(101, "租房");
     std::cout << ub->bidword() << std::endl;
 
     google::ShutdownGoogleLogging();

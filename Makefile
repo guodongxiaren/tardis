@@ -8,7 +8,7 @@ DEMO=demo
 ALL: ENV $(DEMO)
 
 $(DEMO): $(PROTOOBJS)
-	g++ demo/*.cpp proto/*.o -I include -I proto -lglog -lprotobuf -o output/bin/$@
+	g++ -std=c++11 demo/*.cpp proto/*.o -I include -I proto -lglog -lprotobuf -o output/bin/$@
 
 
 ENV:
