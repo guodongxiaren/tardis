@@ -63,7 +63,7 @@ TEST_F(TestDict, load_file_wrong_format) {
 // 加载路径不合法的文件
 TEST_F(TestDict, get_instance_no_dictfilename) {
     int ret = tardis::Dict<Staff, STAFF>::get_instance().load_file("");
-    ASSERT_TRUE(ret == 0);
+    ASSERT_FALSE(ret == 0);
 }
 
 // 测试get_instance类似load_file
@@ -71,7 +71,7 @@ TEST_F(TestDict, get_instance_dictfilename) {
     string dict_filename = _cur_path + "/data/staff.dict";
     LOG(INFO)<< "dict path:"<< dict_filename;
     int ret = tardis::Dict<Staff, STAFF>::get_instance().load_file(dict_filename);
-    ASSERT_FALSE(ret == 0);
+    ASSERT_TRUE(ret == 0);
 }
 
 // 测试get_record_by_key 有效的id;词表文件中id有1 2 3

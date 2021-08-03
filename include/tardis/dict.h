@@ -259,7 +259,10 @@ int Dict<T, N>::read_line(const std::string& line) {
     std::string key;
 
     std::shared_ptr<T> entry = std::make_shared<T>();
-    string_to_message(line, entry.get(), &key);
+    int ret = string_to_message(line, entry.get(), &key);
+    if (ret != 0) {
+        return ret;
+    }
 
     int next_record_index = _record.size();
     _record.emplace_back(entry);

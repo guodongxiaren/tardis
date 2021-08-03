@@ -28,7 +28,7 @@ test_common: test/case/test_common.cpp
 	g++ $^ -o output/test/$@ -std=c++11 -I include -I proto -lglog -lprotobuf -lgtest -pthread
 
 test_dict: test/case/test_dict.cpp $(PROTOOBJS)
-	g++ $^ -o output/test/$@ -std=c++11 -I include -I proto -lglog -lprotobuf -lgtest -pthread
+	g++ $^ -o test/case/$@ -std=c++11 -I include -I proto -lglog -lprotobuf -lgtest -pthread
 
 clean:
 	cd $(PROTODIR); rm -f *.h; rm -f *.cc; rm -f *.o
