@@ -7,30 +7,31 @@
 
 #include "staff.pb.h"
 
-using std::string;
-using std::vector;
 void TestCommon::SetUp() {
+
     char buf[1024] = {0};
     readlink("/proc/self/exe", buf, 1024);
-    cout << buf << endl;
+    std::cout << buf << std::endl;
     _cur_path.assign(dirname(buf));
-
-    google::InitGoogleLogging(NULL);
-
 }
 
 void TestCommon::TearDown() {
-    google::ShutdownGoogleLogging();
 }
 
 int main(int argc, char** argv) {
+    google::InitGoogleLogging(argv[0]);
+
     testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    int ret = RUN_ALL_TESTS();
+
+    google::ShutdownGoogleLogging();
+
+    return ret;
 }
 // 测试split
 TEST_F(TestCommon, split) {
-    string line = "a|b|c";
-    vector<string> vs;
+    std::string line = "a|b|c";
+    std::vector<std::string> vs;
     int ret = split(vs, line, "|");
 
     ASSERT_EQ(ret, 3);
@@ -41,8 +42,8 @@ TEST_F(TestCommon, split) {
 }
 // 测试split TAB分隔
 TEST_F(TestCommon, split_t) {
-    string line = "a\tb\tc";
-    vector<string> vs;
+    std::string line = "a\tb\tc";
+    std::vector<std::string> vs;
     int ret = split(vs, line, "\t");
     ASSERT_EQ(ret, 3);
     ASSERT_EQ(vs.size(), 3);
