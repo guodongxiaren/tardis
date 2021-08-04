@@ -1,23 +1,34 @@
 #include "test_dict.h"
 
 #include <libgen.h>
-
 #include <string>
+#include <sstream>
 #include <vector>
 
-#include "gtest/gtest.h"
-
+#include <gtest/gtest.h>
 #include "staff.pb.h"
+#include "tardis/common.h"
+
+#include <unistd.h>
+#include <linux/limits.h>
+
 
 using std::string;
 using std::vector;
 char STAFF[] = "staff";
 void TestDict::SetUp() {
-    char buf[1024] = {0};
-    getcwd(buf, 1024);
-    _cur_path.assign(dirname(buf));
-    std::cout << _cur_path << std::endl;
+	char dir[PATH_MAX] = {0};
+    readlink("/proc/self/exe", dir, PATH_MAX);
 
+    std::vector<std::string> vec;
+    split(vec, dir, "/");
+    std::stringstream ss;
+    for (int i = 0; i < vec.size() - 1; ++i) {
+        ss << '/' << vec[i]; 
+    }
+
+    _cur_path.assign(ss.str());
+    std::cout << _cur_path << std::endl;
 
     string dict_filename = _cur_path + "/data/staff.dict";
 

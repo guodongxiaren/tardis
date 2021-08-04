@@ -16,6 +16,7 @@ ENV:
 	mkdir -p output/lib
 	mkdir -p output/include
 	mkdir -p output/test
+	mkdir -p output/test/data
 
 $(PROTOSRC): $(PROTOFILE)
 	cd $(PROTODIR);protoc --cpp_out=. $(notdir $(PROTOFILE))
@@ -28,7 +29,8 @@ test_common: test/case/test_common.cpp
 	g++ $^ -o output/test/$@ -std=c++11 -I include -I proto -lglog -lprotobuf -lgtest -pthread
 
 test_dict: test/case/test_dict.cpp $(PROTOOBJS)
-	g++ $^ -o test/case/$@ -std=c++11 -I include -I proto -lglog -lprotobuf -lgtest -pthread
+	g++ $^ -o output/test/$@ -std=c++11 -I include -I proto -lglog -lprotobuf -lgtest -pthread
+	cp test/data/* output/test/data/
 
 clean:
 	cd $(PROTODIR); rm -f *.h; rm -f *.cc; rm -f *.o
