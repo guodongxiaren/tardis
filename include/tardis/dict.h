@@ -41,48 +41,25 @@ public:
     // load dict file
     int load_file(const std::string& dict_file);
 
-    // @brief:     通过key查找记录
-    // @param[in]  keys 词表的key字段，可变参数，支持多个字段做联合的key
-    // @return     shared_ptr版本的值，即单行记录的对应的结构体
     template<typename ...Args>
     std::shared_ptr<T> get_record_by_key(Args... keys);
 
-    // @brief:     通过行号下标获取记录
-    // @param[in]  index 下标，即文件的行数，从0计数
-    // @return     shared_ptr版本的值，即单行数据的对应的结构体
     std::shared_ptr<T> get_record_by_index(int index);
 
-    // @brief:     获取词表行数
-    // @return     词表的行数
     int get_record_num();
 
 private:
-    // @breif:      解析单行数据
-    // @param[in]:  line 数据字符串
-    // @return:     是否成功 0:成功 -1失败
     int read_line(const std::string& line);
 
-    // @breif:      string to message
-    // @param[in]:  line string
-    // @param[out]: message
-    // @param[out]: p_key
-    // @return:     status 0:suc -1:failed
     static int string_to_message(const std::string& line, google::protobuf::Message* message, std::string* p_key);
 
-    // @breif:      反射构造自定义类型对象
-    // @param[in]:  col 表示列的字符串
-    // @param[out]: entry 要构造的自定义类型对象
-    // @param[in]:  field protobuf获取字段信息反射对象
-    // @param[in]:  is_repeated 表示是否是数组
-    // @param[in]:  i 如果是数组，表示是所位于的数组下标
-    // @return:     是否成功 0:成功 -1失败
     static int make_entry(const std::string& col, google::protobuf::Message* entry, 
                           const google::protobuf::FieldDescriptor* field, bool is_repeated = false);
 
 private:
-    std::unordered_map<std::string, int> _dict; // key-value 词表, value是记录对应的行号下标
-    std::vector<std::shared_ptr<T>> _record; // 存储每行记录
-    std::string _dict_filename; // 词表文件路径
+    std::unordered_map<std::string, int> _dict;
+    std::vector<std::shared_ptr<T>> _record;
+    std::string _dict_filename;
 
 };
 
@@ -90,6 +67,7 @@ template <typename T, DictName N>
 int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* entry,
                               const google::protobuf::FieldDescriptor* field, bool is_repeated) {
     const google::protobuf::Reflection* reflection = entry->GetReflection();
+    int ret = 0;
 
     switch (field->cpp_type()) {
     case google::protobuf::FieldDescriptor::CppType::CPPTYPE_BOOL: {
@@ -100,7 +78,6 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
         } else {
             reflection->SetBool(entry, field, value);
         }
-
         break;
     }
 
@@ -110,7 +87,6 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
         } else {
             reflection->SetInt32(entry, field, stol(col));
         }
-
         break;
     }
 
@@ -120,7 +96,6 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
         } else {
             reflection->SetInt32(entry, field, stol(col));
         }
-
         break;
     }
 
@@ -130,7 +105,6 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
         } else {
             reflection->SetInt64(entry, field, stoll(col));
         }
-
         break;
     }
 
@@ -140,7 +114,6 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
         } else {
             reflection->SetUInt32(entry, field, stoul(col));
         }
-
         break;
     }
 
@@ -150,7 +123,6 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
         } else {
             reflection->SetUInt64(entry, field, stoul(col));
         }
-
         break;
     }
 
@@ -160,7 +132,6 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
         } else {
             reflection->SetDouble(entry, field, stod(col));
         }
-
         break;
     }
 
@@ -170,7 +141,6 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
         } else {
             reflection->SetFloat(entry, field, stof(col));
         }
-
         break;
     }
 
@@ -188,14 +158,13 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
         const std::string& mname = field->message_type()->name();
         google::protobuf::Message* msg = nullptr;
 
-
         if (is_repeated) {
             msg = reflection->AddMessage(entry, field);
         } else {
             msg = reflection->MutableMessage(entry, field);
         }
-        return string_to_message(col, msg, nullptr);
 
+        ret = string_to_message(col, msg, nullptr);
         break;
     }
 
@@ -203,10 +172,9 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
         break;
     }
 
-    return 0;
+    return ret;
 }
 
-/* non static */
 template<typename T, DictName N>
 template<typename ...Args>
 std::shared_ptr<T> Dict<T, N>::get_record_by_key(Args... keys) {
