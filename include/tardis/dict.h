@@ -8,7 +8,6 @@
 #include <cstring>
 #include <fstream>
 #include <functional>
-#include <map>
 #include <memory>
 #include <mutex>
 #include <new>
@@ -16,6 +15,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <unordered_map>
 
 #include <glog/logging.h>
 #include <google/protobuf/descriptor.h>
@@ -80,7 +80,7 @@ private:
                           const google::protobuf::FieldDescriptor* field, bool is_repeated = false);
 
 private:
-    std::map<std::string, int> _dict; // key-value 词表, value是记录对应的行号下标
+    std::unordered_map<std::string, int> _dict; // key-value 词表, value是记录对应的行号下标
     std::vector<std::shared_ptr<T>> _record; // 存储每行记录
     std::string _dict_filename; // 词表文件路径
 
