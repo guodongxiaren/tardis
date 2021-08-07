@@ -22,7 +22,7 @@ jobs:
       run: |
            sudo apt install libprotoc-dev
            sudo apt install protobuf-compiler
-           sudo apt install -y cmake libgtest-dev && cd /usr/src/gtest && sudo cmake . && sudo make && sudo mv libgtest* /usr/lib/ && cd -
+           sudo apt install -y cmake libgtest-dev && cd /usr/src/gtest && sudo env  env "PATH=$PATH" cmake . && sudo make -j $(nproc) && sudo mv libgtest* /usr/lib/ && cd -
 
     - name: Build our project
       run: |
