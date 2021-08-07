@@ -1,4 +1,4 @@
-name: build on linux
+name: build
 
 on:
   push:
@@ -22,7 +22,6 @@ jobs:
       run: |
            sudo apt install libprotoc-dev
            sudo apt install protobuf-compiler
-           protoc --version         
 
     - name: Build our project
       run: |
