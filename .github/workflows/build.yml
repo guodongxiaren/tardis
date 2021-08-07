@@ -18,11 +18,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Install protobuf and gtest
+    - name: Install dependencies
       run: |
-           sudo apt install libprotoc-dev
-           sudo apt install protobuf-compiler
-           sudo apt-get install -y cmake libgtest-dev && cd /usr/src/gtest && sudo env "PATH=$PATH" cmake . && sudo make -j $(nproc) && sudo mv lib/libgtest* /usr/lib/ && cd -
+           sudo agt-get install -y libprotoc-dev protobuf-compiler libgoogle-glog-dev cmake libgtest-dev
+           cd /usr/src/gtest && sudo env "PATH=$PATH" cmake . && sudo make -j $(nproc) && sudo mv lib/libgtest* /usr/lib/ && cd -
 
     - name: Build our project
       run: |
