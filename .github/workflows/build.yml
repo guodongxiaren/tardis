@@ -18,10 +18,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Install leveldb, gflags and protobuf
+    - name: Install protobuf and gtest
       run: |
            sudo apt install libprotoc-dev
            sudo apt install protobuf-compiler
+           sudo apt install -y cmake libgtest-dev && cd /usr/src/gtest && sudo cmake . && sudo make && sudo mv libgtest* /usr/ lib/ && cd -
 
     - name: Build our project
       run: |
