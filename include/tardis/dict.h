@@ -22,16 +22,25 @@
 
 #include "tardis.pb.h"
 #include "common.h"
+#define DictName const char*
 
 namespace tardis {
 
-template<typename T>
+template<typename T, DictName N>
 class Dict {
 private:
     // @brief:     构造函数
-    Dict(const std::string& dict_filename): _dict_filename(dict_filename) {};
+    Dict() {}
 
 public:
+    static Dict& get_instance() {
+        static Dict inst;
+        return inst;
+    }
+
+    // load dict file
+    int load_file(const std::string& dict_file);
+
     // @brief:     通过key查找记录
     // @param[in]  keys 词表的key字段，可变参数，支持多个字段做联合的key
     // @return     shared_ptr版本的值，即单行记录的对应的结构体
@@ -47,11 +56,6 @@ public:
     // @return     词表的行数
     int get_record_num();
 
-    // @brief:     指定词表文件路径，构造词表类实例
-    // @param[in]  dict_filename词表路径
-    // @return     shared_ptr版本的词表结构体指针
-    static std::shared_ptr<Dict<T>> get_instance(const std::string& dict_filename);
-
 private:
     // @breif:      解析单行数据
     // @param[in]:  line 数据字符串
@@ -64,10 +68,6 @@ private:
     // @param[out]: p_key
     // @return:     status 0:suc -1:failed
     static int string_to_message(const std::string& line, google::protobuf::Message* message, std::string* p_key);
-
-    // @breif:      加载并解析词表
-    // @return:     是否成功 0:成功 -1失败
-    int load_file();
 
     // @breif:      反射构造自定义类型对象
     // @param[in]:  col 表示列的字符串
@@ -84,43 +84,10 @@ private:
     std::vector<std::shared_ptr<T>> _record; // 存储每行记录
     std::string _dict_filename; // 词表文件路径
 
-    static std::map<std::string, std::shared_ptr<Dict<T>>>
-    _s_dict; // 单例所需的map，key为词表路径，一个词表文件只能实例化出一个Dict
-    static std::mutex _s_lock; // 互斥锁
 };
-/* static */
-template<typename T>
-std::map<std::string, std::shared_ptr<Dict<T>>> Dict<T>::_s_dict;
 
-template<typename T>
-std::mutex Dict<T>::_s_lock;
-
-template<typename T>
-std::shared_ptr<Dict<T>> Dict<T>::get_instance(const std::string& dict_filename) {
-    // 互斥锁
-    std::lock_guard<std::mutex> lock(_s_lock);
-
-    if (_s_dict.find(dict_filename) == _s_dict.end()) {
-        Dict<T>* dict = new(std::nothrow)Dict<T>(dict_filename);
-
-        if (dict == nullptr) {
-            LOG(FATAL)<< "new Dict:"<< dict_filename;
-        return nullptr;
-    }
-
-    if (dict->load_file() != 0) {
-            LOG(FATAL)<< "dict:"<< dict_filename << " load failed";
-            return nullptr;
-        }
-
-        _s_dict[dict_filename] = std::shared_ptr<Dict<T>>(dict);
-    }
-
-    return _s_dict[dict_filename];
-}
-
-template <typename T>
-int Dict<T>::make_entry(const std::string& col, google::protobuf::Message* entry,
+template <typename T, DictName N>
+int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* entry,
                               const google::protobuf::FieldDescriptor* field, bool is_repeated) {
     const google::protobuf::Reflection* reflection = entry->GetReflection();
 
@@ -240,9 +207,9 @@ int Dict<T>::make_entry(const std::string& col, google::protobuf::Message* entry
 }
 
 /* non static */
-template<typename T>
+template<typename T, DictName N>
 template<typename ...Args>
-std::shared_ptr<T> Dict<T>::get_record_by_key(Args... keys) {
+std::shared_ptr<T> Dict<T, N>::get_record_by_key(Args... keys) {
     if (_dict.size() == 0) {
         LOG(ERROR)<< "dict is empty";
         return nullptr;
@@ -259,8 +226,9 @@ std::shared_ptr<T> Dict<T>::get_record_by_key(Args... keys) {
     }
 }
 
-template<typename T>
-int Dict<T>::load_file() {
+template<typename T, DictName N>
+int Dict<T, N>::load_file(const std::string& dict_file) {
+    _dict_filename = dict_file;
     std::ifstream fin(_dict_filename);
 
     if (!fin) {
@@ -286,12 +254,15 @@ int Dict<T>::load_file() {
     return 0;
 }
 
-template<typename T>
-int Dict<T>::read_line(const std::string& line) {
+template<typename T, DictName N>
+int Dict<T, N>::read_line(const std::string& line) {
     std::string key;
 
     std::shared_ptr<T> entry = std::make_shared<T>();
-    string_to_message(line, entry.get(), &key);
+    int ret = string_to_message(line, entry.get(), &key);
+    if (ret != 0) {
+        return ret;
+    }
 
     int next_record_index = _record.size();
     _record.emplace_back(entry);
@@ -301,8 +272,8 @@ int Dict<T>::read_line(const std::string& line) {
     return 0;
 }
 
-template<typename T>
-int Dict<T>::string_to_message(const std::string& line,
+template<typename T, DictName N>
+int Dict<T, N>::string_to_message(const std::string& line,
                                      google::protobuf::Message* message,
                                      std::string* p_key) {
     std::vector<std::string> cols;
@@ -381,13 +352,13 @@ int Dict<T>::string_to_message(const std::string& line,
     return 0;
 }
 
-template<typename T>
-int Dict<T>::get_record_num() {
+template<typename T, DictName N>
+int Dict<T, N>::get_record_num() {
     return _record.size();
 }
 
-template<typename T>
-std::shared_ptr<T> Dict<T>::get_record_by_index(int index) {
+template<typename T, DictName N>
+std::shared_ptr<T> Dict<T, N>::get_record_by_index(int index) {
     if (index >= _record.size()) {
         return nullptr;
     } else {

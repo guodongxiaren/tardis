@@ -1,11 +1,11 @@
 #pragma once
-#define private public
 #include <string>
 
-#include "gtest/gtest.h"
-
+#include <gtest/gtest.h>
 #include <glog/logging.h>
-#include "common.h"
+
+#define private public
+#include "tardis/common.h"
 
 class TestCommon : public ::testing::Test {
 public:
