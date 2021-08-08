@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 
     return ret;
 }
-// 测试split
+// split by |
 TEST_F(TestCommon, split) {
     std::string line = "a|b|c";
     std::vector<std::string> vs;
@@ -40,9 +40,21 @@ TEST_F(TestCommon, split) {
     ASSERT_EQ(vs[1], "b");
     ASSERT_EQ(vs[2], "c");
 }
-// 测试split TAB分隔
+// split by TAB
 TEST_F(TestCommon, split_t) {
     std::string line = "a\tb\tc";
+    std::vector<std::string> vs;
+    int ret = split(vs, line, "\t");
+    ASSERT_EQ(ret, 3);
+    ASSERT_EQ(vs.size(), 3);
+    ASSERT_EQ(vs[0], "a");
+    ASSERT_EQ(vs[1], "b");
+    ASSERT_EQ(vs[2], "c");
+}
+
+// split multi TAB
+TEST_F(TestCommon, split_multi_t) {
+    std::string line = "a\t\tb\tc\t";
     std::vector<std::string> vs;
     int ret = split(vs, line, "\t");
     ASSERT_EQ(ret, 3);

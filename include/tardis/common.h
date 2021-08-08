@@ -27,21 +27,17 @@ std::string join_param(const T& value, Args... args) {
 
 inline int split(std::vector<std::string>& result, const std::string& str, const std::string& delimiter) {
     result.clear();
-    char* save = nullptr;
-    // string to non-const char*
-    char buf[MAX_BUF_SIZE] = {0};
-    int ret = snprintf(buf, sizeof(buf), "%s", str.c_str());
-
-    if (ret < 0) {
-        return -1;
+    int start = 0;
+    while (start < str.size()) {
+        int end = str.find(delimiter, start);
+        if (end == std::string::npos) {
+            result.emplace_back(str, start);
+            break;
+        }
+        if (end > start) {
+            result.emplace_back(str, start, end - start);
+        }
+        start = end + 1;
     }
-
-    char* token = strtok_r(buf, delimiter.c_str(), &save);
-
-    while (token != nullptr) {
-        result.emplace_back(token);
-        token = strtok_r(nullptr, delimiter.c_str(), &save);
-    }
-
     return result.size();
 }
