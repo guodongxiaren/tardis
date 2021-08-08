@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 TEST_F(TestCommon, split) {
     std::string line = "a|b|c";
     std::vector<std::string> vs;
-    int ret = split(vs, line, "|");
+    int ret = tardis::split(vs, line, "|");
 
     ASSERT_EQ(ret, 3);
     ASSERT_EQ(vs.size(), 3);
@@ -44,7 +44,7 @@ TEST_F(TestCommon, split) {
 TEST_F(TestCommon, split_t) {
     std::string line = "a\tb\tc";
     std::vector<std::string> vs;
-    int ret = split(vs, line, "\t");
+    int ret = tardis::split(vs, line, "\t");
     ASSERT_EQ(ret, 3);
     ASSERT_EQ(vs.size(), 3);
     ASSERT_EQ(vs[0], "a");
@@ -56,7 +56,7 @@ TEST_F(TestCommon, split_t) {
 TEST_F(TestCommon, split_multi_t) {
     std::string line = "a\t\tb\tc\t";
     std::vector<std::string> vs;
-    int ret = split(vs, line, "\t");
+    int ret = tardis::split(vs, line, "\t");
     ASSERT_EQ(ret, 3);
     ASSERT_EQ(vs.size(), 3);
     ASSERT_EQ(vs[0], "a");

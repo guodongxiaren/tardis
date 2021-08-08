@@ -21,7 +21,7 @@ void TestDict::SetUp() {
     readlink("/proc/self/exe", dir, PATH_MAX);
 
     std::vector<std::string> vec;
-    split(vec, dir, "/");
+    tardis::split(vec, dir, "/");
     std::stringstream ss;
     for (int i = 0; i < vec.size() - 1; ++i) {
         ss << '/' << vec[i]; 

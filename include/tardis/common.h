@@ -8,8 +8,8 @@
 #include <string>
 #include <vector>
 
-// const
-const int MAX_BUF_SIZE = 1024;
+namespace tardis {
+
 
 template <typename T> std::string join_param(const T &value) {
     std::stringstream ss;
@@ -41,3 +41,6 @@ inline int split(std::vector<std::string> &result, const std::string &str,
     }
     return result.size();
 }
+
+
+} // namespace tardis
