@@ -115,3 +115,8 @@ find函数的参数就是主键的值，支持基本数据类型，如果主键�
 ```
 ## 其他
 注意ut在可执行文件所在的目录里执行
+
+## 格式化
+```
+find . -name "*.cpp" -o -name "*.h" -exec clang-format -style=file -i {} \;
+```
