@@ -28,7 +28,6 @@ namespace tardis {
 
 template <typename T, DictName N> class Dict {
 private:
-    // @brief:     构造函数
     Dict() {}
 
 public:
@@ -72,108 +71,53 @@ int Dict<T, N>::make_entry(const std::string &col,
                            bool is_repeated) {
     const google::protobuf::Reflection *reflection = entry->GetReflection();
     int ret = 0;
+#define filed_type_case(X, Y, T)                                               \
+    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_##X: {            \
+        T value = tardis::lexical_cast<T>(col);                                \
+        if (is_repeated) {                                                     \
+            reflection->Add##Y(entry, field, value);                           \
+        } else {                                                               \
+            reflection->Set##Y(entry, field, value);                           \
+        }                                                                      \
+        break;                                                                 \
+    }
 
     switch (field->cpp_type()) {
-    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_BOOL: {
-        bool value = (stoi(col) == 1);
+        filed_type_case(BOOL, Bool, bool) 
+        filed_type_case(ENUM, Int32, int32_t) 
+        filed_type_case(INT32, Int32, int32_t) 
+        filed_type_case(INT64, Int64, int64_t)
+        filed_type_case(UINT32, UInt32, uint32_t)
+        filed_type_case( UINT64, UInt64, uint64_t) 
+        filed_type_case(DOUBLE, Double, double)
+        filed_type_case(FLOAT, Float, float)
 
-        if (is_repeated) {
-            reflection->AddBool(entry, field, value);
-        } else {
-            reflection->SetBool(entry, field, value);
-        }
-        break;
-    }
-
-    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_ENUM: {
-        if (is_repeated) {
-            reflection->AddInt32(entry, field, stol(col));
-        } else {
-            reflection->SetInt32(entry, field, stol(col));
-        }
-        break;
-    }
-
-    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_INT32: {
-        if (is_repeated) {
-            reflection->AddInt32(entry, field, stol(col));
-        } else {
-            reflection->SetInt32(entry, field, stol(col));
-        }
-        break;
-    }
-
-    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_INT64: {
-        if (is_repeated) {
-            reflection->AddInt64(entry, field, stoll(col));
-        } else {
-            reflection->SetInt64(entry, field, stoll(col));
-        }
-        break;
-    }
-
-    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT32: {
-        if (is_repeated) {
-            reflection->AddUInt32(entry, field, stoul(col));
-        } else {
-            reflection->SetUInt32(entry, field, stoul(col));
-        }
-        break;
-    }
-
-    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_UINT64: {
-        if (is_repeated) {
-            reflection->AddUInt64(entry, field, stoul(col));
-        } else {
-            reflection->SetUInt64(entry, field, stoul(col));
-        }
-        break;
-    }
-
-    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_DOUBLE: {
-        if (is_repeated) {
-            reflection->AddDouble(entry, field, stod(col));
-        } else {
-            reflection->SetDouble(entry, field, stod(col));
-        }
-        break;
-    }
-
-    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_FLOAT: {
-        if (is_repeated) {
-            reflection->AddFloat(entry, field, stof(col));
-        } else {
-            reflection->SetFloat(entry, field, stof(col));
-        }
-        break;
-    }
-
-    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING: {
-        if (is_repeated) {
-            reflection->AddString(entry, field, col);
-        } else {
-            reflection->SetString(entry, field, col);
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING : {
+            if (is_repeated) {
+                reflection->AddString(entry, field, col);
+            } else {
+                reflection->SetString(entry, field, col);
+            }
+            break;
         }
 
-        break;
-    }
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE: {
+            const std::string &mname = field->message_type()->name();
+            google::protobuf::Message *msg = nullptr;
 
-    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE: {
-        const std::string &mname = field->message_type()->name();
-        google::protobuf::Message *msg = nullptr;
+            if (is_repeated) {
+                msg = reflection->AddMessage(entry, field);
+            } else {
+                msg = reflection->MutableMessage(entry, field);
+            }
 
-        if (is_repeated) {
-            msg = reflection->AddMessage(entry, field);
-        } else {
-            msg = reflection->MutableMessage(entry, field);
+            ret = string_to_message(col, msg, nullptr);
+            break;
         }
 
-        ret = string_to_message(col, msg, nullptr);
-        break;
-    }
-
-    default:
-        break;
+        default:
+            // LOG
+            break;
     }
 
     return ret;

@@ -3,13 +3,15 @@
 // @biref:      common function lib
 // @date:       2021-07-18
 #pragma once
+#include <stdint.h>
+
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 namespace tardis {
-
 
 template <typename T> std::string join_param(const T &value) {
     std::stringstream ss;
@@ -42,5 +44,26 @@ inline int split(std::vector<std::string> &result, const std::string &str,
     return result.size();
 }
 
+// common cast, but it's slow
+template <typename T> T lexical_cast(const std::string &str) {
+    T var;
+    std::istringstream iss;
+    iss.str(str);
+    iss >> var;
+    return var;
+}
+
+template <> bool lexical_cast<bool>(const std::string &str) {
+    if (str == "true" || str == "True") {
+        return true;
+    } else if (str == "false" || str == "False") {
+        return false;
+    }
+    return std::stoi(str) != 0;
+}
+
+template <> int32_t lexical_cast<int32_t>(const std::string &str) {
+    return std::stoi(str);
+}
 
 } // namespace tardis
