@@ -11,21 +11,21 @@
 // const
 const int MAX_BUF_SIZE = 1024;
 
-template<typename T>
-std::string join_param(const T& value) {
+template <typename T> std::string join_param(const T &value) {
     std::stringstream ss;
     ss << value;
     return ss.str();
 }
 
-template<typename T, typename ...Args>
-std::string join_param(const T& value, Args... args) {
+template <typename T, typename... Args>
+std::string join_param(const T &value, Args... args) {
     std::stringstream ss;
     ss << value << "\t" << join_param(args...);
     return ss.str();
 }
 
-inline int split(std::vector<std::string>& result, const std::string& str, const std::string& delimiter) {
+inline int split(std::vector<std::string> &result, const std::string &str,
+                 const std::string &delimiter) {
     result.clear();
     int start = 0;
     while (start < str.size()) {

@@ -14,34 +14,33 @@
 #include <sstream>
 #include <string>
 #include <tuple>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include <glog/logging.h>
 #include <google/protobuf/descriptor.h>
 
-#include "tardis.pb.h"
 #include "common.h"
-#define DictName const char*
+#include "tardis.pb.h"
+#define DictName const char *
 
 namespace tardis {
 
-template<typename T, DictName N>
-class Dict {
+template <typename T, DictName N> class Dict {
 private:
     // @brief:     构造函数
     Dict() {}
 
 public:
-    static Dict& get_instance() {
+    static Dict &get_instance() {
         static Dict inst;
         return inst;
     }
 
     // load dict file
-    int load_file(const std::string& dict_file);
+    int load_file(const std::string &dict_file);
 
-    template<typename ...Args>
+    template <typename... Args>
     std::shared_ptr<T> get_record_by_key(Args... keys);
 
     std::shared_ptr<T> get_record_by_index(int index);
@@ -49,24 +48,29 @@ public:
     int get_record_num();
 
 private:
-    int read_line(const std::string& line);
+    int read_line(const std::string &line);
 
-    static int string_to_message(const std::string& line, google::protobuf::Message* message, std::string* p_key);
+    static int string_to_message(const std::string &line,
+                                 google::protobuf::Message *message,
+                                 std::string *p_key);
 
-    static int make_entry(const std::string& col, google::protobuf::Message* entry, 
-                          const google::protobuf::FieldDescriptor* field, bool is_repeated = false);
+    static int make_entry(const std::string &col,
+                          google::protobuf::Message *entry,
+                          const google::protobuf::FieldDescriptor *field,
+                          bool is_repeated = false);
 
 private:
     std::unordered_map<std::string, int> _dict;
     std::vector<std::shared_ptr<T>> _record;
     std::string _dict_filename;
-
 };
 
 template <typename T, DictName N>
-int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* entry,
-                              const google::protobuf::FieldDescriptor* field, bool is_repeated) {
-    const google::protobuf::Reflection* reflection = entry->GetReflection();
+int Dict<T, N>::make_entry(const std::string &col,
+                           google::protobuf::Message *entry,
+                           const google::protobuf::FieldDescriptor *field,
+                           bool is_repeated) {
+    const google::protobuf::Reflection *reflection = entry->GetReflection();
     int ret = 0;
 
     switch (field->cpp_type()) {
@@ -155,8 +159,8 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
     }
 
     case google::protobuf::FieldDescriptor::CppType::CPPTYPE_MESSAGE: {
-        const std::string& mname = field->message_type()->name();
-        google::protobuf::Message* msg = nullptr;
+        const std::string &mname = field->message_type()->name();
+        google::protobuf::Message *msg = nullptr;
 
         if (is_repeated) {
             msg = reflection->AddMessage(entry, field);
@@ -175,18 +179,18 @@ int Dict<T, N>::make_entry(const std::string& col, google::protobuf::Message* en
     return ret;
 }
 
-template<typename T, DictName N>
-template<typename ...Args>
+template <typename T, DictName N>
+template <typename... Args>
 std::shared_ptr<T> Dict<T, N>::get_record_by_key(Args... keys) {
     if (_dict.size() == 0) {
-        LOG(ERROR)<< "dict is empty";
+        LOG(ERROR) << "dict is empty";
         return nullptr;
     }
 
     std::string key = join_param(keys...);
 
     if (_dict.find(key) != _dict.end()) {
-        LOG(ERROR)<< "found dict key:" << key;
+        LOG(ERROR) << "found dict key:" << key;
         int record_index = _dict[key];
         return get_record_by_index(record_index);
     } else {
@@ -194,13 +198,13 @@ std::shared_ptr<T> Dict<T, N>::get_record_by_key(Args... keys) {
     }
 }
 
-template<typename T, DictName N>
-int Dict<T, N>::load_file(const std::string& dict_file) {
+template <typename T, DictName N>
+int Dict<T, N>::load_file(const std::string &dict_file) {
     _dict_filename = dict_file;
     std::ifstream fin(_dict_filename);
 
     if (!fin) {
-        LOG(ERROR)<< "open file:" << _dict_filename << " failed";
+        LOG(ERROR) << "open file:" << _dict_filename << " failed";
         return 2;
     }
 
@@ -211,10 +215,10 @@ int Dict<T, N>::load_file(const std::string& dict_file) {
         lines.emplace_back(line);
     }
 
-    for (std::string& line : lines) {
+    for (std::string &line : lines) {
 
         if (this->read_line(line) != 0) {
-            LOG(ERROR)<< "read_line:"<< line;
+            LOG(ERROR) << "read_line:" << line;
             return -1;
         }
     }
@@ -222,8 +226,8 @@ int Dict<T, N>::load_file(const std::string& dict_file) {
     return 0;
 }
 
-template<typename T, DictName N>
-int Dict<T, N>::read_line(const std::string& line) {
+template <typename T, DictName N>
+int Dict<T, N>::read_line(const std::string &line) {
     std::string key;
 
     std::shared_ptr<T> entry = std::make_shared<T>();
@@ -240,24 +244,24 @@ int Dict<T, N>::read_line(const std::string& line) {
     return 0;
 }
 
-template<typename T, DictName N>
-int Dict<T, N>::string_to_message(const std::string& line,
-                                     google::protobuf::Message* message,
-                                     std::string* p_key) {
+template <typename T, DictName N>
+int Dict<T, N>::string_to_message(const std::string &line,
+                                  google::protobuf::Message *message,
+                                  std::string *p_key) {
     std::vector<std::string> cols;
-    const google::protobuf::Descriptor* descriptor = message->GetDescriptor();
+    const google::protobuf::Descriptor *descriptor = message->GetDescriptor();
 
-    auto& sep = descriptor->options().GetExtension(tardis::separator);
+    auto &sep = descriptor->options().GetExtension(tardis::separator);
 
     if (split(cols, line, sep) <= 0) {
-        LOG(ERROR)<< "split failed:"<< line;
+        LOG(ERROR) << "split failed:" << line;
         return -1;
     }
 
     int field_count = descriptor->field_count();
 
     if (field_count > cols.size()) {
-        LOG(ERROR)<< "field_count:" << field_count << "cols:"<< cols.size();
+        LOG(ERROR) << "field_count:" << field_count << "cols:" << cols.size();
         return -1;
     }
 
@@ -266,9 +270,10 @@ int Dict<T, N>::string_to_message(const std::string& line,
     bool is_first = true;
 
     for (int i = 0; i < field_count; ++i) {
-        const std::string& col = cols[i];
+        const std::string &col = cols[i];
         auto field = descriptor->field(i);
-        LOG(INFO)<< "field_" << i <<" col:"<< col << " cpp_type:" << field->cpp_type();
+        LOG(INFO) << "field_" << i << " col:" << col
+                  << " cpp_type:" << field->cpp_type();
 
         bool key_opt = field->options().GetExtension(tardis::key);
 
@@ -285,25 +290,26 @@ int Dict<T, N>::string_to_message(const std::string& line,
             int ret = make_entry(col, message, field);
 
             if (ret != 0) {
-                LOG(ERROR)<< "make field failed:"<< col;
+                LOG(ERROR) << "make field failed:" << col;
                 return -1;
             }
         } else {
-            auto& del = field->options().GetExtension(tardis::delimiter);
+            auto &del = field->options().GetExtension(tardis::delimiter);
             std::vector<std::string> vs;
 
             if (split(vs, col, del) <= 0) {
-                LOG(ERROR)<< "split failed:"<< vs[1];
+                LOG(ERROR) << "split failed:" << vs[1];
                 return -1;
             }
 
             for (int i = 0; i < vs.size(); ++i) {
-                std::string& data = vs[i];
-                LOG(INFO)<< "repeated cpp_type:" << field->cpp_type() <<" array" << i << "=" << data;
+                std::string &data = vs[i];
+                LOG(INFO) << "repeated cpp_type:" << field->cpp_type()
+                          << " array" << i << "=" << data;
                 int ret = make_entry(data, message, field, true);
 
                 if (ret != 0) {
-                    LOG(ERROR)<< "make_entry failed:"<< data;
+                    LOG(ERROR) << "make_entry failed:" << data;
                     return -1;
                 }
             }
@@ -320,12 +326,11 @@ int Dict<T, N>::string_to_message(const std::string& line,
     return 0;
 }
 
-template<typename T, DictName N>
-int Dict<T, N>::get_record_num() {
+template <typename T, DictName N> int Dict<T, N>::get_record_num() {
     return _record.size();
 }
 
-template<typename T, DictName N>
+template <typename T, DictName N>
 std::shared_ptr<T> Dict<T, N>::get_record_by_index(int index) {
     if (index >= _record.size()) {
         return nullptr;
