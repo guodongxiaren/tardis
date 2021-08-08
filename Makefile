@@ -7,7 +7,7 @@ DEMO=demo
 
 ALL: ENV $(DEMO) test_common test_dict
 
-$(DEMO): $(PROTOOBJS) demo/*.cpp
+$(DEMO): $(PROTOOBJS) demo/demo.cpp
 	g++ -std=c++11 $^ -I include -I proto -lglog -lprotobuf -o output/bin/$@
 
 

@@ -13,10 +13,10 @@
 #include <glog/logging.h>
 #include "tardis/dict.h"
 #include "student.pb.h"
-#include "userbid.pb.h"
+#include "country.pb.h"
 
 char STUDENT[] = "student";
-char USERBID[] = "userbid";
+char COUNTRY[] = "country";
 
 int main(int argc, char** argv) {
 
@@ -38,11 +38,12 @@ int main(int argc, char** argv) {
     std::cout << student->addr().city() << std::endl;
 
     
-    dict_name = path + "/data/userbid.dict";
-    auto& cub = tardis::Dict<UserBid, USERBID>::get_instance();
+    dict_name = path + "/data/iso-3166.csv";
+    auto& cub = tardis::Dict<Country, COUNTRY>::get_instance();
     cub.load_file(dict_name);
-    auto ub = cub.get_record_by_key(101, "租房");
-    std::cout << ub->bidword() << std::endl;
+    auto country = cub.get_record_by_key("China");
+    std::cout << country->alpha_3() << std::endl;
+    std::cout << country->code() << std::endl;
 
     google::ShutdownGoogleLogging();
 

@@ -105,14 +105,8 @@ int main() {
 }
 
 ```
-find函数的参数就是主键的值，支持基本数据类型，如果主键是自定义类型，则使用它的字符串表示(string类型)。
-如果是联合主键，find也支持可变参数。比如：
-```c++
-    dict_name = "/../data/userbid.dict";
-    auto cub = tardis::Dict<UserBid>::get_instance(dict_name);
-    auto ub = cub->find(101, "租房"); // find函数
-    cout << ub->bidword() << endl;
-```
+TODO 组合键
+
 ## 其他
 注意ut在可执行文件所在的目录里执行
 

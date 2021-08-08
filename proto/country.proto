@@ -1,0 +1,17 @@
+syntax="proto3";
+import "tardis.proto";
+
+message Country {
+    option (tardis.separator) = ",";
+    string name = 1[(tardis.key) = true];
+    string alpha_2 = 2;
+    string alpha_3 = 3;
+    string code = 4;
+    string _ = 5;
+    string region = 6;
+    string sub_region = 7;
+    string intermediate_region = 8;
+    string region_code = 9;
+    string sub_region_code = 10;
+    string intermediate_region_code = 11;
+}
