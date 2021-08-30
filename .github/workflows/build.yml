@@ -29,5 +29,5 @@ jobs:
 
     - name: Run tests
       run: |
-          output/test/test_common
-          output/test/test_dict
+          test/test_common
+          test/test_dict
