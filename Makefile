@@ -1,14 +1,22 @@
-PROTODIR=proto/
-PROTOFILE=$(wildcard $(PROTODIR)/*.proto)
-PROTOSRC=$(patsubst %.proto,%.pb.cc,$(PROTOFILE))
-PROTOOBJS=$(patsubst %.cc,%.o, $(PROTOSRC))
+PROTO_DIR=proto
+OUTPUT=output
+BIN_DIR=$(OUTPUT)/bin
+TEST_DIR=test
+PROTO_FILE=$(wildcard $(PROTO_DIR)/*.proto)
+PROTO_SRC=$(patsubst %.proto,%.pb.cc,$(PROTO_FILE))
+PROTO_OBJ=$(patsubst %.cc,%.o, $(PROTO_SRC))
+TEST_SRC=$(wildcard $(TEST_DIR)/*.cpp)
+TEST_BIN=$(patsubst %.cpp,%,$(TEST_SRC))
+CC=g++
+CXX_FLAG=-std=c++11 -O2 -Wno-unused-result
 
-DEMO=demo
+DEMO=$(BIN_DIR)/demo
 
-ALL: ENV $(DEMO) test_common test_dict
+#ALL: ENV $(DEMO) test_common test_dict
+ALL: ENV $(DEMO) $(TEST_BIN)
 
-$(DEMO): $(PROTOOBJS) demo/*.cpp
-	g++ -std=c++11 $^ -I include -I proto -lglog -lprotobuf -o output/bin/$@
+$(DEMO): $(PROTO_OBJ) demo/demo.cpp
+	$(CC) $(CXX_FLAG) $^ -I include -I proto -lglog -lprotobuf -o $@
 
 
 ENV:
@@ -18,20 +26,16 @@ ENV:
 	mkdir -p output/test
 	mkdir -p output/test/data
 
-$(PROTOSRC): $(PROTOFILE)
-	cd $(PROTODIR);protoc --cpp_out=. $(notdir $(PROTOFILE))
+$(PROTO_SRC): $(PROTO_FILE)
+	cd $(PROTO_DIR);protoc --cpp_out=. $(notdir $(PROTO_FILE))
 	@echo $(shell pwd)
 
 %.o: %.cpp 
-	g++ -c $^ -o $@ -I $(PROTODIR)
+	$(CC) $(CXX_FLAG) -c $^ -o $@ -I $(PROTO_DIR)
 
-test_common: test/case/test_common.cpp
-	g++ $^ -o output/test/$@ -std=c++11 -I include -I proto -lglog -lprotobuf -lgtest -pthread
-
-test_dict: test/case/test_dict.cpp $(PROTOOBJS)
-	g++ $^ -o output/test/$@ -std=c++11 -I include -I proto -lglog -lprotobuf -lgtest -pthread
-	cp test/data/* output/test/data/
+test/test_%: test/test_%.cpp $(PROTO_OBJ)
+	$(CC) $(CXX_FLAG) $^ -o $@ -I include -I proto -lglog -lprotobuf -lgtest -pthread
 
 clean:
-	cd $(PROTODIR); rm -f *.h; rm -f *.cc; rm -f *.o
+	cd $(PROTO_DIR); rm -f *.h; rm -f *.cc; rm -f *.o
 	rm -rf output

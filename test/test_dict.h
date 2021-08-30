@@ -1,7 +1,7 @@
 #pragma once
+#include <gtest/gtest.h>
 #include <memory>
 #include <string>
-#include <gtest/gtest.h>
 
 #include "staff.pb.h"
 #define private public
@@ -12,12 +12,12 @@ class TestDict : public ::testing::Test {
 public:
     virtual void SetUp();
     virtual void TearDown();
+
 public:
-    TestDict() {
-    };
-    ~TestDict() {
-    };
+    TestDict(){};
+    ~TestDict(){};
+
 public:
     std::string _cur_path;
-    tardis::Dict<Staff, STAFF>* _cd_staff;
+    tardis::Dict<Staff, STAFF> *_cd_staff;
 };
