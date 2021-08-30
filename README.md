@@ -27,9 +27,9 @@ message Student {
 ```
 主键（key）需要使用tardis.key指定，支持多个字段做联合主键，比如：
 ```proto
-message UserBid {
-    int32 userid = 1[(tardis.key) = true];
-    string bidword = 2[(tardis.key) = true];
+message Tag {
+    string tag1 = 1[(tardis.key) = true];
+    string tag2 = 2[(tardis.key) = true];
 }
 ```
 字段分隔符用 tardis.separator 指定。
@@ -97,7 +97,7 @@ using std::endl;
 char STUDENT[] = "student";
 int main() {
     string dict_name = "../data/student.dict";
-    auto& cd = tardis::Dict<Student, STUDENT>::get_instance(dict_name);
+    auto& cd = tardis::Dict<Student, STUDENT>::get_instance();
     cd.load_file(dict_name);
     auto student = cd->find(1); // find函数
     cout << student->name() << endl;
