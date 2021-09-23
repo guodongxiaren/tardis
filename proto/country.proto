@@ -1,5 +1,5 @@
 syntax="proto3";
-import "tardis.proto";
+import "tardis/tardis.proto";
 
 message Country {
     option (tardis.separator) = ",";
