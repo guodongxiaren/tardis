@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
            sudo apt-get install -y libprotoc-dev protobuf-compiler libgoogle-glog-dev cmake libgtest-dev
-           cd /usr/src/gtest && sudo env "PATH=$PATH" cmake . && sudo make -j $(nproc) && sudo mv lib/libgtest* /usr/lib/ && cd -
+           cd /usr/src/gtest && sudo cmake . && sudo make -j $(nproc) && sudo mv lib/libgtest* /usr/lib/ && cd -
 
     - name: Build our project
       run: |
