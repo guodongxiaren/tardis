@@ -28,9 +28,9 @@ int main(int argc, char** argv) {
 
 
     std::string dict_name = path + "/data/student.dict";
-    auto& cd = tardis::Dict<Student, STUDENT>::get_instance();
-    cd.load_file(dict_name);
-    auto student = cd.get_record_by_key(1);
+    auto& cd = tardis::Dict<Student, STUDENT>::Instance();
+    cd.LoadFile(dict_name);
+    auto student = cd.Search(1);
     if (student) {
         std::cout << student->name() << std::endl;
         std::cout << student->hobby(0) << std::endl;
@@ -39,9 +39,9 @@ int main(int argc, char** argv) {
 
     
     dict_name = path + "/data/iso-3166.csv";
-    auto& cub = tardis::Dict<Country, COUNTRY>::get_instance();
-    cub.load_file(dict_name);
-    auto country = cub.get_record_by_key("China");
+    auto& cub = tardis::Dict<Country, COUNTRY>::Instance();
+    cub.LoadFile(dict_name);
+    auto country = cub.Search("China");
     std::cout << country->alpha_3() << std::endl;
     std::cout << country->code() << std::endl;
 
