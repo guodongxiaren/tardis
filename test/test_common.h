@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 
-#include <glog/logging.h>
 #include <gtest/gtest.h>
 
 #define private public

@@ -10,7 +10,6 @@
 #include <memory>
 #include <string>
 
-#include <glog/logging.h>
 #include "tardis/dict.h"
 #include "student.pb.h"
 #include "country.pb.h"
@@ -26,16 +25,17 @@ int main(int argc, char** argv) {
     getcwd(buf, 1024);
     std::string path(buf);
     std::cout << path << std::endl;
-    google::InitGoogleLogging(argv[0]);
 
 
     std::string dict_name = path + "/data/student.dict";
     auto& cd = tardis::Dict<Student, STUDENT>::get_instance();
     cd.load_file(dict_name);
-    auto student = cd.get_record_by_index(1);
-    std::cout << student->name() << std::endl;
-    std::cout << student->hobby(0) << std::endl;
-    std::cout << student->addr().city() << std::endl;
+    auto student = cd.get_record_by_key(1);
+    if (student) {
+        std::cout << student->name() << std::endl;
+        std::cout << student->hobby(0) << std::endl;
+        std::cout << student->addr().city() << std::endl;
+    }
 
     
     dict_name = path + "/data/iso-3166.csv";
@@ -44,8 +44,6 @@ int main(int argc, char** argv) {
     auto country = cub.get_record_by_key("China");
     std::cout << country->alpha_3() << std::endl;
     std::cout << country->code() << std::endl;
-
-    google::ShutdownGoogleLogging();
 
     return 0;
 }

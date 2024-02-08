@@ -16,7 +16,7 @@ DEMO=$(BIN_DIR)/demo
 ALL: ENV $(DEMO) $(TEST_BIN)
 
 $(DEMO): $(PROTO_OBJ) demo/demo.cpp
-	$(CC) $(CXX_FLAG) $^ -I include -I proto -lglog -lprotobuf -o $@
+	$(CC) $(CXX_FLAG) $^ -I include -I proto -lprotobuf -o $@
 
 
 ENV:
@@ -34,7 +34,7 @@ $(PROTO_SRC): $(PROTO_FILE)
 	$(CC) $(CXX_FLAG) -c $^ -o $@ -I $(PROTO_DIR)
 
 test/test_%: test/test_%.cpp $(PROTO_OBJ)
-	$(CC) $(CXX_FLAG) $^ -o $@ -I include -I proto -lglog -lprotobuf -lgtest -pthread
+	$(CC) $(CXX_FLAG) $^ -o $@ -I include -I proto -lprotobuf -lgtest -pthread
 
 clean:
 	cd $(PROTO_DIR); rm -f *.h; rm -f *.cc; rm -f *.o
