@@ -215,8 +215,8 @@ int Dict<T, N>::string_to_message(const std::string &line,
     for (int i = 0; i < field_count; ++i) {
         const std::string &col = cols[i];
         auto field = descriptor->field(i);
-        std::cout << "field_" << i << " col:" << col
-                  << " cpp_type:" << field->cpp_type();
+        // std::cout << "field_" << i << " col:" << col
+        //           << " cpp_type:" << field->cpp_type();
 
         bool key_opt = field->options().GetExtension(tardis::key);
 
@@ -247,8 +247,8 @@ int Dict<T, N>::string_to_message(const std::string &line,
 
             for (int i = 0; i < vs.size(); ++i) {
                 std::string &data = vs[i];
-                std::cout << "repeated cpp_type:" << field->cpp_type()
-                          << " array" << i << "=" << data;
+                // std::cout << "repeated cpp_type:" << field->cpp_type()
+                //           << " array" << i << "=" << data;
                 int ret = make_entry(data, message, field, true);
 
                 if (ret != 0) {
