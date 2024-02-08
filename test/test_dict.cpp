@@ -82,14 +82,14 @@ TEST_F(TestDict, get_instance_dictfilename) {
     ASSERT_TRUE(ret == 0);
 }
 
-// 测试get_record_by_key 有效的id;词表文件中id有1 2 3
-TEST_F(TestDict, get_record_by_key) {
-    auto staff = _cd_staff->get_record_by_key(1);
+// 测试Search 有效的id;词表文件中id有1 2 3
+TEST_F(TestDict, Search) {
+    auto staff = _cd_staff->Search(1);
     ASSERT_EQ(staff->name(), "wangwei");
 }
 
-// 测试get_record_by_key 不存在的id;词表文件中id有1 2 3
-TEST_F(TestDict, get_record_by_key_invalid_id) {
-    auto staff = _cd_staff->get_record_by_key(0);
+// 测试Search 不存在的id;词表文件中id有1 2 3
+TEST_F(TestDict, Search_invalid_id) {
+    auto staff = _cd_staff->Search(0);
     ASSERT_EQ(staff, nullptr);
 }

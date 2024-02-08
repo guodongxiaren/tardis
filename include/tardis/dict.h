@@ -39,9 +39,9 @@ public:
     int load_file(const std::string &dict_file);
 
     template <typename... Args>
-    std::shared_ptr<T> get_record_by_key(Args... keys);
+    std::shared_ptr<T> Search(Args... keys);
 
-    int get_record_num();
+    int Size();
 
 private:
     int read_line(const std::string& line);
@@ -121,7 +121,7 @@ int Dict<T, N>::make_entry(const std::string& col,
 
 template <typename T, DictName N>
 template <typename... Args>
-std::shared_ptr<T> Dict<T, N>::get_record_by_key(Args... keys) {
+std::shared_ptr<T> Dict<T, N>::Search(Args... keys) {
     if (_dict.size() == 0) {
         std::cerr << "dict is empty";
         return nullptr;
@@ -264,7 +264,7 @@ int Dict<T, N>::string_to_message(const std::string &line,
     return 0;
 }
 
-template <typename T, DictName N> int Dict<T, N>::get_record_num() {
+template <typename T, DictName N> int Dict<T, N>::Size() {
     return _dict.size();
 }
 
