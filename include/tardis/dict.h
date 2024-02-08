@@ -30,7 +30,7 @@ private:
     Dict() {}
 
 public:
-    static Dict &get_instance() {
+    static Dict& get_instance() {
         static Dict inst;
         return inst;
     }
@@ -41,32 +41,29 @@ public:
     template <typename... Args>
     std::shared_ptr<T> get_record_by_key(Args... keys);
 
-    std::shared_ptr<T> get_record_by_index(int index);
-
     int get_record_num();
 
 private:
-    int read_line(const std::string &line);
+    int read_line(const std::string& line);
 
-    static int string_to_message(const std::string &line,
-                                 google::protobuf::Message *message,
-                                 std::string *p_key);
+    static int string_to_message(const std::string& line,
+                                 google::protobuf::Message* message,
+                                 std::string* p_key);
 
-    static int make_entry(const std::string &col,
-                          google::protobuf::Message *entry,
-                          const google::protobuf::FieldDescriptor *field,
+    static int make_entry(const std::string& col,
+                          google::protobuf::Message* entry,
+                          const google::protobuf::FieldDescriptor* field,
                           bool is_repeated = false);
 
 private:
-    std::unordered_map<std::string, int> _dict;
-    std::vector<std::shared_ptr<T>> _record;
+    std::unordered_map<std::string, std::shared_ptr<T>> _dict;
     std::string _dict_filename;
 };
 
 template <typename T, DictName N>
-int Dict<T, N>::make_entry(const std::string &col,
-                           google::protobuf::Message *entry,
-                           const google::protobuf::FieldDescriptor *field,
+int Dict<T, N>::make_entry(const std::string& col,
+                           google::protobuf::Message* entry,
+                           const google::protobuf::FieldDescriptor* field,
                            bool is_repeated) {
     const google::protobuf::Reflection *reflection = entry->GetReflection();
     int ret = 0;
@@ -132,10 +129,11 @@ std::shared_ptr<T> Dict<T, N>::get_record_by_key(Args... keys) {
 
     std::string key = join_param(keys...);
 
-    if (_dict.find(key) != _dict.end()) {
+    auto it = _dict.find(key);
+
+    if (it != _dict.end()) {
         std::cerr << "found dict key:" << key;
-        int record_index = _dict[key];
-        return get_record_by_index(record_index);
+        return it->second;
     } else {
         return nullptr;
     }
@@ -179,10 +177,7 @@ int Dict<T, N>::read_line(const std::string &line) {
         return ret;
     }
 
-    int next_record_index = _record.size();
-    _record.emplace_back(entry);
-
-    _dict[key] = next_record_index;
+    _dict[key] = entry;
 
     return 0;
 }
@@ -270,16 +265,7 @@ int Dict<T, N>::string_to_message(const std::string &line,
 }
 
 template <typename T, DictName N> int Dict<T, N>::get_record_num() {
-    return _record.size();
-}
-
-template <typename T, DictName N>
-std::shared_ptr<T> Dict<T, N>::get_record_by_index(int index) {
-    if (index >= _record.size()) {
-        return nullptr;
-    } else {
-        return _record[index];
-    }
+    return _dict.size();
 }
 
 } // namespace tardis

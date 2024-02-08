@@ -93,15 +93,3 @@ TEST_F(TestDict, get_record_by_key_invalid_id) {
     auto staff = _cd_staff->get_record_by_key(0);
     ASSERT_EQ(staff, nullptr);
 }
-
-// 测试get_record_by_index
-TEST_F(TestDict, get_record_by_index) {
-    auto staff = _cd_staff->get_record_by_index(0);
-    ASSERT_NE(staff, nullptr);
-}
-
-// 测试get_record_by_index 超出下标范围
-TEST_F(TestDict, get_record_by_index_invalid_index) {
-    auto staff = _cd_staff->get_record_by_index(100000);
-    ASSERT_EQ(staff, nullptr);
-}
