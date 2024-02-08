@@ -42,12 +42,9 @@ void TestDict::TearDown() {
 }
 
 int main(int argc, char** argv) {
-    google::InitGoogleLogging(argv[0]);
 
     testing::InitGoogleTest(&argc, argv);
     int ret = RUN_ALL_TESTS();
-
-    google::ShutdownGoogleLogging();
 
     return ret;
 }
@@ -64,7 +61,7 @@ TEST_F(TestDict, load_file) {
 // 加载格式非法的文件
 TEST_F(TestDict, load_file_wrong_format) {
     string dict_filename = _cur_path + "/data/staff_err.dict";
-    LOG(INFO)<< "wrong dict path:%s"<< dict_filename;
+    std::cout<< "wrong dict path:%s"<< dict_filename;
     auto& cd = tardis::Dict<Staff, STAFF>::get_instance();
     int ret = cd.load_file(dict_filename);
     ASSERT_NE(ret, 0);
@@ -80,7 +77,7 @@ TEST_F(TestDict, get_instance_no_dictfilename) {
 // 测试get_instance类似load_file
 TEST_F(TestDict, get_instance_dictfilename) {
     string dict_filename = _cur_path + "/data/staff.dict";
-    LOG(INFO)<< "dict path:"<< dict_filename;
+    std::cout<< "dict path:"<< dict_filename;
     int ret = tardis::Dict<Staff, STAFF>::get_instance().load_file(dict_filename);
     ASSERT_TRUE(ret == 0);
 }

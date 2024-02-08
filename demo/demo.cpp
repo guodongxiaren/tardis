@@ -10,7 +10,6 @@
 #include <memory>
 #include <string>
 
-#include <glog/logging.h>
 #include "tardis/dict.h"
 #include "student.pb.h"
 #include "country.pb.h"
@@ -26,7 +25,6 @@ int main(int argc, char** argv) {
     getcwd(buf, 1024);
     std::string path(buf);
     std::cout << path << std::endl;
-    google::InitGoogleLogging(argv[0]);
 
 
     std::string dict_name = path + "/data/student.dict";
@@ -44,8 +42,6 @@ int main(int argc, char** argv) {
     auto country = cub.get_record_by_key("China");
     std::cout << country->alpha_3() << std::endl;
     std::cout << country->code() << std::endl;
-
-    google::ShutdownGoogleLogging();
 
     return 0;
 }
