@@ -30,13 +30,13 @@ private:
     Dict() {}
 
 public:
-    static Dict& get_instance() {
+    static Dict& Instance() {
         static Dict inst;
         return inst;
     }
 
     // load dict file
-    int load_file(const std::string &dict_file);
+    int LoadFile(const std::string &dict_file);
 
     template <typename... Args>
     std::shared_ptr<T> Search(Args... keys);
@@ -140,7 +140,7 @@ std::shared_ptr<T> Dict<T, N>::Search(Args... keys) {
 }
 
 template <typename T, DictName N>
-int Dict<T, N>::load_file(const std::string &dict_file) {
+int Dict<T, N>::LoadFile(const std::string &dict_file) {
     _dict_filename = dict_file;
     std::ifstream fin(_dict_filename);
 
