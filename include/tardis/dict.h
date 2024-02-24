@@ -73,13 +73,16 @@ int Dict<T>::make_entry(const std::string &col, google::protobuf::Message *entry
     }
 
     switch (field->cpp_type()) {
-        filed_type_case(BOOL, Bool, bool) filed_type_case(ENUM, Int32, int32_t) filed_type_case(INT32, Int32, int32_t)
-            filed_type_case(INT64, Int64, int64_t) filed_type_case(UINT32, UInt32, uint32_t)
-                filed_type_case(UINT64, UInt64, uint64_t) filed_type_case(DOUBLE, Double, double)
-                    filed_type_case(FLOAT, Float, float)
+        filed_type_case(BOOL, Bool, bool);
+        filed_type_case(ENUM, Int32, int32_t);
+        filed_type_case(INT32, Int32, int32_t);
+        filed_type_case(INT64, Int64, int64_t);
+        filed_type_case(UINT32, UInt32, uint32_t);
+        filed_type_case(UINT64, UInt64, uint64_t);
+        filed_type_case(DOUBLE, Double, double);
+        filed_type_case(FLOAT, Float, float);
 
-
-                        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING : {
+        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING: {
             if (is_repeated) {
                 reflection->AddString(entry, field, col);
             } else {
