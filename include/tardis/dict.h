@@ -1,4 +1,4 @@
-// @filename:   common_dict.h
+// @filename:   dict.h
 // @author:     guodongxiaren
 // @biref:      parse data
 // @date:       2021-07-18
