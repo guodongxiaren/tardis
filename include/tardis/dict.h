@@ -21,16 +21,16 @@
 
 #include "common.h"
 #include "tardis.pb.h"
-#define DictName const char *
 
 namespace tardis {
 
-template <typename T, DictName N> class Dict {
-private:
+template <typename T>
+class Dict {
+ private:
     Dict() {}
 
-public:
-    static Dict& Instance() {
+ public:
+    static Dict &Instance() {
         static Dict inst;
         return inst;
     }
@@ -43,52 +43,42 @@ public:
 
     int Size();
 
-private:
-    int read_line(const std::string& line);
+ private:
+    int read_line(const std::string &line);
 
-    static int string_to_message(const std::string& line,
-                                 google::protobuf::Message* message,
-                                 std::string* p_key);
+    static int string_to_message(const std::string &line, google::protobuf::Message *message, std::string *p_key);
 
-    static int make_entry(const std::string& col,
-                          google::protobuf::Message* entry,
-                          const google::protobuf::FieldDescriptor* field,
-                          bool is_repeated = false);
+    static int make_entry(const std::string &col, google::protobuf::Message *entry,
+                          const google::protobuf::FieldDescriptor *field, bool is_repeated = false);
 
-private:
+ private:
     std::unordered_map<std::string, std::shared_ptr<T>> _dict;
     std::string _dict_filename;
 };
 
-template <typename T, DictName N>
-int Dict<T, N>::make_entry(const std::string& col,
-                           google::protobuf::Message* entry,
-                           const google::protobuf::FieldDescriptor* field,
-                           bool is_repeated) {
+template <typename T>
+int Dict<T>::make_entry(const std::string &col, google::protobuf::Message *entry,
+                        const google::protobuf::FieldDescriptor *field, bool is_repeated) {
     const google::protobuf::Reflection *reflection = entry->GetReflection();
     int ret = 0;
-#define filed_type_case(X, Y, T)                                               \
-    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_##X: {            \
-        T value = tardis::lexical_cast<T>(col);                                \
-        if (is_repeated) {                                                     \
-            reflection->Add##Y(entry, field, value);                           \
-        } else {                                                               \
-            reflection->Set##Y(entry, field, value);                           \
-        }                                                                      \
-        break;                                                                 \
+#define filed_type_case(X, Y, T)                                    \
+    case google::protobuf::FieldDescriptor::CppType::CPPTYPE_##X: { \
+        T value = tardis::lexical_cast<T>(col);                     \
+        if (is_repeated) {                                          \
+            reflection->Add##Y(entry, field, value);                \
+        } else {                                                    \
+            reflection->Set##Y(entry, field, value);                \
+        }                                                           \
+        break;                                                      \
     }
 
     switch (field->cpp_type()) {
-        filed_type_case(BOOL, Bool, bool) 
-        filed_type_case(ENUM, Int32, int32_t) 
-        filed_type_case(INT32, Int32, int32_t) 
-        filed_type_case(INT64, Int64, int64_t)
-        filed_type_case(UINT32, UInt32, uint32_t)
-        filed_type_case( UINT64, UInt64, uint64_t) 
-        filed_type_case(DOUBLE, Double, double)
-        filed_type_case(FLOAT, Float, float)
+        filed_type_case(BOOL, Bool, bool) filed_type_case(ENUM, Int32, int32_t) filed_type_case(INT32, Int32, int32_t)
+            filed_type_case(INT64, Int64, int64_t) filed_type_case(UINT32, UInt32, uint32_t)
+                filed_type_case(UINT64, UInt64, uint64_t) filed_type_case(DOUBLE, Double, double)
+                    filed_type_case(FLOAT, Float, float)
 
-        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING : {
+                        case google::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING : {
             if (is_repeated) {
                 reflection->AddString(entry, field, col);
             } else {
@@ -119,9 +109,9 @@ int Dict<T, N>::make_entry(const std::string& col,
     return ret;
 }
 
-template <typename T, DictName N>
+template <typename T>
 template <typename... Args>
-std::shared_ptr<T> Dict<T, N>::Search(Args... keys) {
+std::shared_ptr<T> Dict<T>::Search(Args... keys) {
     if (_dict.size() == 0) {
         std::cerr << "dict is empty";
         return nullptr;
@@ -139,8 +129,8 @@ std::shared_ptr<T> Dict<T, N>::Search(Args... keys) {
     }
 }
 
-template <typename T, DictName N>
-int Dict<T, N>::LoadFile(const std::string &dict_file) {
+template <typename T>
+int Dict<T>::LoadFile(const std::string &dict_file) {
     _dict_filename = dict_file;
     std::ifstream fin(_dict_filename);
 
@@ -157,7 +147,6 @@ int Dict<T, N>::LoadFile(const std::string &dict_file) {
     }
 
     for (std::string &line : lines) {
-
         if (this->read_line(line) != 0) {
             std::cerr << "read_line:" << line;
             return -1;
@@ -167,8 +156,8 @@ int Dict<T, N>::LoadFile(const std::string &dict_file) {
     return 0;
 }
 
-template <typename T, DictName N>
-int Dict<T, N>::read_line(const std::string &line) {
+template <typename T>
+int Dict<T>::read_line(const std::string &line) {
     std::string key;
 
     std::shared_ptr<T> entry = std::make_shared<T>();
@@ -182,10 +171,8 @@ int Dict<T, N>::read_line(const std::string &line) {
     return 0;
 }
 
-template <typename T, DictName N>
-int Dict<T, N>::string_to_message(const std::string &line,
-                                  google::protobuf::Message *message,
-                                  std::string *p_key) {
+template <typename T>
+int Dict<T>::string_to_message(const std::string &line, google::protobuf::Message *message, std::string *p_key) {
     std::vector<std::string> cols;
     const google::protobuf::Descriptor *descriptor = message->GetDescriptor();
 
@@ -264,8 +251,9 @@ int Dict<T, N>::string_to_message(const std::string &line,
     return 0;
 }
 
-template <typename T, DictName N> int Dict<T, N>::Size() {
+template <typename T>
+int Dict<T>::Size() {
     return _dict.size();
 }
 
-} // namespace tardis
+}  // namespace tardis

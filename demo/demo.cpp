@@ -14,9 +14,6 @@
 #include "student.pb.h"
 #include "country.pb.h"
 
-char STUDENT[] = "student";
-char COUNTRY[] = "country";
-
 int main(int argc, char** argv) {
 
     // 从配置文件load配置，并打开日志
@@ -28,7 +25,7 @@ int main(int argc, char** argv) {
 
 
     std::string dict_name = path + "/data/student.dict";
-    auto& cd = tardis::Dict<Student, STUDENT>::Instance();
+    auto& cd = tardis::Dict<Student>::Instance();
     cd.LoadFile(dict_name);
     auto student = cd.Search(1);
     if (student) {
@@ -39,7 +36,7 @@ int main(int argc, char** argv) {
 
     
     dict_name = path + "/data/iso-3166.csv";
-    auto& cub = tardis::Dict<Country, COUNTRY>::Instance();
+    auto& cub = tardis::Dict<Country>::Instance();
     cub.LoadFile(dict_name);
     auto country = cub.Search("China");
     std::cout << country->alpha_3() << std::endl;

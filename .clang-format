@@ -1,5 +1,6 @@
-Language: Cpp
-BasedOnStyle: llvm
-IndentWidth:	4
-TabWidth:	4
-AccessModifierOffset:	-4
+BasedOnStyle: Google
+ColumnLimit: 120
+SortIncludes: false
+SortUsingDeclarations: false
+IndentWidth: 4
+AccessModifierOffset: -3

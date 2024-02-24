@@ -9,15 +9,15 @@
 
 extern char STAFF[];
 class TestDict : public ::testing::Test {
-public:
+ public:
     virtual void SetUp();
     virtual void TearDown();
 
-public:
+ public:
     TestDict(){};
     ~TestDict(){};
 
-public:
+ public:
     std::string _cur_path;
     tardis::Dict<Staff, STAFF> *_cd_staff;
 };

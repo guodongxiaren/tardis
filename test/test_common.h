@@ -7,14 +7,14 @@
 #include "tardis/common.h"
 
 class TestCommon : public ::testing::Test {
-public:
+ public:
     virtual void SetUp();
     virtual void TearDown();
 
-public:
+ public:
     TestCommon(){};
     ~TestCommon(){};
 
-public:
+ public:
     std::string _cur_path;
 };
