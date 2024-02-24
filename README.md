@@ -94,10 +94,9 @@ using std::string;
 using std::cout;
 using std::endl;
 
-char STUDENT[] = "student";
 int main() {
     string dict_name = "../data/student.dict";
-    auto& cd = tardis::Dict<Student, STUDENT>::Instance();
+    auto& cd = tardis::Dict<Student>::Instance();
     cd.LoadFile(dict_name);
     auto student = cd->find(1); // find函数
     cout << student->name() << endl;
