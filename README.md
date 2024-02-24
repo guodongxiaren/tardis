@@ -2,7 +2,7 @@
     <img src="https://raw.githubusercontent.com/guodongxiaren/logo/master/tardis/tardis.png" width="10%">
     <h1>Tardis<br><sub>C++本地词典文件解析库</sub></h1>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/Open_source-MIT-green.svg?logo=git&logoColor=green"></a>
-    <a href="https://github.com/guodongxiaren/dipper/actions/build.yml"><img src="https://github.com/guodongxiaren/tardis/actions/workflows/build.yml/badge.svg"></a>
+    <a href="https://github.com/guodongxiaren/tardis/actions/build.yml"><img src="https://github.com/guodongxiaren/tardis/actions/workflows/build.yml/badge.svg"></a>
 </div>
 
 
