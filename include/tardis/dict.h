@@ -78,6 +78,7 @@ int Dict<T>::make_entry(const std::string &col, google::protobuf::Message *entry
                 filed_type_case(UINT64, UInt64, uint64_t) filed_type_case(DOUBLE, Double, double)
                     filed_type_case(FLOAT, Float, float)
 
+
                         case google::protobuf::FieldDescriptor::CppType::CPPTYPE_STRING : {
             if (is_repeated) {
                 reflection->AddString(entry, field, col);
@@ -105,6 +106,7 @@ int Dict<T>::make_entry(const std::string &col, google::protobuf::Message *entry
             // LOG
             break;
     }
+#undef filed_type_case
 
     return ret;
 }

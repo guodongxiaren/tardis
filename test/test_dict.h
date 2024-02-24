@@ -19,5 +19,5 @@ class TestDict : public ::testing::Test {
 
  public:
     std::string _cur_path;
-    tardis::Dict<Staff, STAFF> *_cd_staff;
+    tardis::Dict<Staff> *_cd_staff;
 };

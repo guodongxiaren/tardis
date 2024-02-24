@@ -34,7 +34,7 @@ void TestDict::SetUp() {
 
     std::cout << dict_filename << std::endl;
 
-    _cd_staff = &tardis::Dict<Staff, STAFF>::Instance();
+    _cd_staff = &tardis::Dict<Staff>::Instance();
     _cd_staff->LoadFile(dict_filename);
 }
 
@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
 // 正常加载文件(LoadFile、read_line)
 TEST_F(TestDict, LoadFile) {
     string dict_filename = _cur_path + "/data/staff.dict";
-    auto& cd = tardis::Dict<Staff, STAFF>::Instance();
+    auto& cd = tardis::Dict<Staff>::Instance();
     int ret = cd.LoadFile(dict_filename);
     ASSERT_EQ(ret, 0);
     ASSERT_EQ(cd._dict_filename, dict_filename);
@@ -62,7 +62,7 @@ TEST_F(TestDict, LoadFile) {
 TEST_F(TestDict, LoadFile_wrong_format) {
     string dict_filename = _cur_path + "/data/staff_err.dict";
     std::cout<< "wrong dict path:%s"<< dict_filename;
-    auto& cd = tardis::Dict<Staff, STAFF>::Instance();
+    auto& cd = tardis::Dict<Staff>::Instance();
     int ret = cd.LoadFile(dict_filename);
     ASSERT_NE(ret, 0);
     ASSERT_EQ(cd._dict_filename, dict_filename);
@@ -70,7 +70,7 @@ TEST_F(TestDict, LoadFile_wrong_format) {
 
 // 加载路径不合法的文件
 TEST_F(TestDict, Instance_no_dictfilename) {
-    int ret = tardis::Dict<Staff, STAFF>::Instance().LoadFile("");
+    int ret = tardis::Dict<Staff>::Instance().LoadFile("");
     ASSERT_FALSE(ret == 0);
 }
 
@@ -78,7 +78,7 @@ TEST_F(TestDict, Instance_no_dictfilename) {
 TEST_F(TestDict, Instance_dictfilename) {
     string dict_filename = _cur_path + "/data/staff.dict";
     std::cout<< "dict path:"<< dict_filename;
-    int ret = tardis::Dict<Staff, STAFF>::Instance().LoadFile(dict_filename);
+    int ret = tardis::Dict<Staff>::Instance().LoadFile(dict_filename);
     ASSERT_TRUE(ret == 0);
 }
 
